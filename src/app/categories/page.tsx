@@ -1,0 +1,173 @@
+// カテゴリー管理ページ
+
+"use client";
+
+import { Trash2 } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+
+const CategoriesPage = () => {
+  const [categories, setCategories] = useState<string[]>([""]);
+  const [showPopup, setShowPopup] = useState(false);
+
+  // カテゴリーを追加
+  const handleAddCategory = () => {
+    const hasEmpty = categories.some((c) => c.trim() === "");
+    if (hasEmpty) {
+      setShowPopup(true);
+      return;
+    }
+    setCategories((prev) => ["", ...prev]);
+  };
+
+  // 3秒後にポップアップ削除
+  useEffect(() => {
+    if (showPopup) {
+      const timer = setTimeout(() => setShowPopup(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showPopup]);
+
+  // カテゴリーを削除
+  const handleDeleteCategory = (index: number) => {
+    const newCategories = categories.filter((_, i) => i !== index);
+    setCategories(newCategories);
+  };
+
+  // 入力変更
+  const handleChangeCategory = (index: number, value: string) => {
+    const newCategories = [...categories];
+    newCategories[index] = value;
+    setCategories(newCategories);
+  };
+
+  // 表示
+  const leftCategories = categories.slice(0, 5);
+  const rightCategories = categories.slice(5);
+
+  // 共通フォーカススタイル
+  const unifiedFocus =
+    "border border-gray-300 focus-within:border-blue-200 focus-within:ring-1 focus-within:ring-blue-400 rounded-md shadow-sm";
+
+  return (
+    <>
+      <div className="sm:w-2/3 w-full mx-auto py-5 md:py-10 px-4">
+        <h1 className="text-2xl font-extrabold text-gray-600 mb-10 text-center hidden md:block">
+          カテゴリー管理
+        </h1>
+
+        {/* ポップアップ */}
+        {showPopup && (
+          <div className="absolute inset-x-0 top-36 flex justify-center z-50">
+            <Alert variant="destructive" className="w-fit shadow-lg">
+              <AlertDescription>
+                カテゴリーが空欄です。入力してください。
+              </AlertDescription>
+            </Alert>
+          </div>
+        )}
+
+        {/* カテゴリー 入力欄 削除ボタン */}
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-full sm:w-2/3 flex justify-start">
+            <Button
+              type="button"
+              onClick={handleAddCategory}
+              variant="secondary"
+              className="mb-5 cursor-pointer shadow-xs py-2 px-4 rounded-md bg-green-100 hover:bg-green-200 text-gray-700"
+            >
+              カテゴリーを追加
+            </Button>
+          </div>
+
+          {/* 2列 レイアウト */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full sm:w-2/3">
+            {/* 左列 */}
+            <div className="flex flex-col gap-3">
+              {leftCategories.map((category, index) => (
+                <div key={index} className="flex items-center gap-3">
+                  {/* 共通フォーカススタイル */}
+                  <div className={`w-full sm:max-w-sm h-10 ${unifiedFocus}`}>
+                    <Input
+                      type="text"
+                      value={category}
+                      onChange={(e) =>
+                        handleChangeCategory(index, e.target.value)
+                      }
+                      className="w-full h-full px-3 py-2 border-none shadow-none focus-visible:ring-0 focus-visible:outline-none"
+                      placeholder="入力してください"
+                    />
+                  </div>
+
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDeleteCategory(index)}
+                    className="rounded-md text-red-500 cursor-pointer hover:text-red-500 hover:bg-red-50"
+                    aria-label="削除"
+                  >
+                    <Trash2 size={20} />
+                  </Button>
+                </div>
+              ))}
+            </div>
+
+            {/* 右列 */}
+            <div className="flex flex-col gap-3">
+              {rightCategories.map((category, i) => {
+                const index = i + 5;
+                return (
+                  <div key={index} className="flex items-center gap-3">
+                    <div className={`w-full sm:max-w-sm h-10 ${unifiedFocus}`}>
+                      <Input
+                        type="text"
+                        value={category}
+                        onChange={(e) =>
+                          handleChangeCategory(index, e.target.value)
+                        }
+                        className="w-full h-full px-3 py-2 border-none shadow-none focus-visible:ring-0 focus-visible:outline-none"
+                        placeholder="入力してください"
+                      />
+                    </div>
+
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDeleteCategory(index)}
+                      className="rounded-md text-red-500 cursor-pointer hover:bg-gray-50"
+                      aria-label="削除"
+                    >
+                      <Trash2 size={20} />
+                    </Button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 注意書き */}
+          <div className="text-red-500 mt-20 w-full sm:w-2/3 mx-auto text-sm">
+            <p>
+              ※カテゴリーを「追加」または、「削除」した場合は、「更新」ボタンを押下してください。
+              <br />
+              &nbsp;「更新」ボタンを押下せず、ページを移動した場合、変更内容が更新されません。
+            </p>
+          </div>
+
+          {/* 更新ボタン */}
+          <div className="flex justify-center mt-10">
+            <Button className="cursor-pointer shadow-sm py-2 px-8 rounded-md bg-emerald-500 hover:bg-emerald-600 text-white">
+              更新
+            </Button>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default CategoriesPage;
