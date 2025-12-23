@@ -24,10 +24,6 @@ const Header = () => {
 
   const hiddenPaths = ["/signin", "/signup"];
 
-  if (hiddenPaths.includes(pathname)) {
-    return null;
-  }
-
   const handleItemClick = () => {
     setIsMenuOpen(false);
   };
@@ -55,6 +51,9 @@ const Header = () => {
     toast.success("ログアウトしました");
   };
 
+  // ログインページはナビを非表示
+  const isLoggedInPage = !hiddenPaths.includes(pathname);
+
   return (
     <header className="bg-emerald-50/50 shadow-sm sticky top-0 z-50 backdrop-blur-sm ">
       <div className="container px-4 py-1 mx-auto">
@@ -64,19 +63,20 @@ const Header = () => {
             {/* ロゴ */}
             <Image src="/logo.svg" alt="ロゴ" width={50} height={50} priority />
             {/* ナビゲーション */}
-            <NavigationMenu className="hidden md:block">
-              <NavigationMenuList className="flex space-x-2">
-                {navItem.map((item) => {
-                  const isActive =
-                    item.href === "/"
-                      ? pathname === "/"
-                      : pathname.startsWith(item.href);
+            {isLoggedInPage && (
+              <NavigationMenu className="hidden md:block">
+                <NavigationMenuList className="flex space-x-2">
+                  {navItem.map((item) => {
+                    const isActive =
+                      item.href === "/"
+                        ? pathname === "/"
+                        : pathname.startsWith(item.href);
 
-                  return (
-                    <NavigationMenuItem key={item.name}>
-                      <NavigationMenuLink
-                        href={item.href}
-                        className={`
+                    return (
+                      <NavigationMenuItem key={item.name}>
+                        <NavigationMenuLink
+                          href={item.href}
+                          className={`
                           py-2 px-4 block whitespace-nowrap text-sm font-medium border-b-2 border-transparent
                           hover:bg-transparent active:bg-transparent focus:bg-transparent
                           ${
@@ -85,24 +85,27 @@ const Header = () => {
                               : "border-transparent text-gray-600"
                           }
                         `}
-                      >
-                        {item.name}
-                      </NavigationMenuLink>
-                    </NavigationMenuItem>
-                  );
-                })}
-              </NavigationMenuList>
-            </NavigationMenu>
+                        >
+                          {item.name}
+                        </NavigationMenuLink>
+                      </NavigationMenuItem>
+                    );
+                  })}
+                </NavigationMenuList>
+              </NavigationMenu>
+            )}
           </div>
 
           {/* ログアウトボタン */}
-          <Button
-            onClick={handleLogout}
-            variant="outline"
-            className="text-gray-600 rounded-md shadow-xs cursor-pointer"
-          >
-            ログアウト
-          </Button>
+          {isLoggedInPage && (
+            <Button
+              onClick={handleLogout}
+              variant="outline"
+              className="text-gray-600 rounded-md shadow-xs cursor-pointer"
+            >
+              ログアウト
+            </Button>
+          )}
         </div>
 
         {/* 768px 未満 */}
@@ -113,25 +116,28 @@ const Header = () => {
           </Link>
 
           {/* 768px 未満 ページ名表示 */}
-          <p className="flex-1 text-center text-gray-600 font-semibold">
-            {currentPage}
-          </p>
+          {isLoggedInPage && (
+            <p className="flex-1 text-center text-gray-600 font-semibold">
+              {currentPage}
+            </p>
+          )}
 
           {/* 768px 未満 ハンバーガーメニュー */}
-          <div className="relative">
-            <Button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              variant="outline"
-              size="icon"
-              className="border-gray-300 bg-white text-gray-600 hover:bg-white cursor-pointer"
-              aria-label="メニュー"
-            >
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </Button>
+          {isLoggedInPage && (
+            <div className="relative">
+              <Button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                variant="outline"
+                size="icon"
+                className="border-gray-300 bg-white text-gray-600 hover:bg-white cursor-pointer"
+                aria-label="メニュー"
+              >
+                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </Button>
 
-            {/* 768px 未満(768px以上 非表示) */}
-            <div
-              className={`
+              {/* 768px 未満(768px以上 非表示) */}
+              <div
+                className={`
                 absolute right-0 top-full w-[180px] bg-white/90 backdrop-blur-md shadow-lg border border-gray-200 z-40 rounded-md
                 transition-all duration-300 ease-in-out
                 ${
@@ -140,40 +146,41 @@ const Header = () => {
                     : "max-h-0 opacity-0 overflow-hidden py-0"
                 }
               `}
-            >
-              <nav className="flex flex-col space-y-3 px-2">
-                {navItem.map((item) => {
-                  const isActive =
-                    item.href === "/"
-                      ? pathname === "/"
-                      : pathname.startsWith(item.href);
+              >
+                <nav className="flex flex-col space-y-3 px-2">
+                  {navItem.map((item) => {
+                    const isActive =
+                      item.href === "/"
+                        ? pathname === "/"
+                        : pathname.startsWith(item.href);
 
-                  return (
-                    <Link
-                      key={item.name}
-                      href={item.href}
-                      onClick={handleItemClick}
-                      className={`text-xs font-medium text-left ${
-                        isActive ? "text-gray-600 font-bold" : "text-gray-600"
-                      }`}
-                    >
-                      {item.name}
-                    </Link>
-                  );
-                })}
-                {/* ハンバーガーメニュー ログアウト */}
-                <button
-                  onClick={() => {
-                    handleLogout();
-                    handleItemClick();
-                  }}
-                  className="text-xs font-medium text-left text-gray-600 cursor-pointer"
-                >
-                  ログアウト
-                </button>
-              </nav>
+                    return (
+                      <Link
+                        key={item.name}
+                        href={item.href}
+                        onClick={handleItemClick}
+                        className={`text-xs font-medium text-left ${
+                          isActive ? "text-gray-600 font-bold" : "text-gray-600"
+                        }`}
+                      >
+                        {item.name}
+                      </Link>
+                    );
+                  })}
+                  {/* ハンバーガーメニュー ログアウト */}
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      handleItemClick();
+                    }}
+                    className="text-xs font-medium text-left text-gray-600 cursor-pointer"
+                  >
+                    ログアウト
+                  </button>
+                </nav>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </header>
