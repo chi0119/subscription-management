@@ -2,7 +2,7 @@
 
 "use client";
 
-import { Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -57,6 +57,9 @@ const CategoriesPage = () => {
         <h1 className="text-2xl font-extrabold text-gray-600 mb-10 text-center hidden md:block">
           カテゴリー管理
         </h1>
+        <p className="text-sm text-gray-600 mb-15 text-center">
+          サブスクを分類するカテゴリーを追加・削除して管理できます。
+        </p>
 
         {/* ポップアップ */}
         {showPopup && (
@@ -70,14 +73,14 @@ const CategoriesPage = () => {
         )}
 
         {/* カテゴリー 入力欄 削除ボタン */}
-        <div className="flex flex-col items-center gap-4">
+        <div className="flex flex-col items-center gap-2">
           <div className="w-full sm:w-2/3 flex justify-start">
             <Button
               type="button"
               onClick={handleAddCategory}
-              variant="secondary"
-              className="mb-5 cursor-pointer shadow-xs py-2 px-4 rounded-md bg-green-100 hover:bg-green-200 text-gray-700"
+              className="mb-1 cursor-pointer shadow-xs h-7 px-3 rounded-md bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-600 text-xs flex items-center gap-1"
             >
+              <Plus size={12} className="text-emerald-600" />
               カテゴリーを追加
             </Button>
           </div>
@@ -150,7 +153,7 @@ const CategoriesPage = () => {
           </div>
 
           {/* 注意書き */}
-          <div className="text-red-500 mt-20 w-full sm:w-2/3 mx-auto text-sm">
+          <div className="text-red-500 mt-10 w-full sm:w-2/3 mx-auto text-sm">
             <p>
               ※カテゴリーを「追加」または、「削除」した場合は、「更新」ボタンを押下してください。
               <br />
@@ -159,7 +162,7 @@ const CategoriesPage = () => {
           </div>
 
           {/* 更新ボタン */}
-          <div className="flex justify-center mt-10">
+          <div className="flex justify-center mt-5">
             <Button className="cursor-pointer shadow-sm py-2 px-8 rounded-md bg-emerald-500 hover:bg-emerald-600 text-white">
               更新
             </Button>

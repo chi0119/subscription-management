@@ -62,16 +62,7 @@ const Header = () => {
         <div className="hidden md:flex items-center justify-between">
           <div className="flex items-center space-x-8">
             {/* ロゴ */}
-            <Link href={"/"} className="flex items-center space-x-2 ">
-              <Image
-                src="/logo.svg"
-                alt="ロゴ"
-                width={50}
-                height={50}
-                priority
-              />
-            </Link>
-
+            <Image src="/logo.svg" alt="ロゴ" width={50} height={50} priority />
             {/* ナビゲーション */}
             <NavigationMenu className="hidden md:block">
               <NavigationMenuList className="flex space-x-2">
