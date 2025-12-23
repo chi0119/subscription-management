@@ -47,15 +47,15 @@ export default function SignInPage() {
     "border border-gray-300 focus-within:border-blue-200 focus-within:ring-1 focus-within:ring-blue-400 rounded-md shadow-sm";
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-start bg-gray-50 pt-20 px-4">
-      <Card className="w-full max-w-md rounded-md shadow-xs">
+    <div className="flex min-h-screen flex-col items-center justify-start pt-20 px-4">
+      <Card className="w-full max-w-md rounded-md shadow-sm">
         <CardHeader>
-          <CardTitle className="text-center text-2xl font-bold">
+          <CardTitle className="text-center text-2xl font-bold text-gray-600">
             ログイン
           </CardTitle>
           <p className="text-center text-sm text-gray-600 mt-2">
             アカウントをお持ちでない方は{" "}
-            <Link href="/signup" className="text-blue-500 hover:underline">
+            <Link href="/signup" className="text-emerald-600 hover:underline">
               新規登録
             </Link>
           </p>
@@ -114,7 +114,7 @@ export default function SignInPage() {
             {/* ログインボタン */}
             <Button
               type="submit"
-              className="w-full bg-blue-400 hover:bg-blue-500 text-white mt-4 cursor-pointer"
+              className="w-full bg-emerald-500 hover:bg-emerald-600 text-white mt-4 cursor-pointer"
               disabled={loadingForm}
             >
               {loadingForm ? (
