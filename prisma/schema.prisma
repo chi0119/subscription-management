@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -11,5 +5,59 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  // url      = env("DATABASE_URL")
+}
+
+model categories {
+  id            BigInt          @id @default(autoincrement())
+  category_name String
+  user_id       BigInt
+  created_at    DateTime?       @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  updated_at    DateTime?       @db.Timestamptz(6)
+  deleted_at    DateTime?       @db.Timestamptz(6)
+  users         users           @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  subscriptions subscriptions[]
+}
+
+model payment_cycles {
+  id                 BigInt          @id @default(autoincrement())
+  payment_cycle_name String
+  subscriptions      subscriptions[]
+}
+
+model payment_methods {
+  id                  BigInt          @id @default(autoincrement())
+  payment_method_name String
+  subscriptions       subscriptions[]
+}
+
+model subscriptions {
+  id                BigInt           @id @default(autoincrement())
+  subscription_name String
+  user_id           BigInt
+  category_id       BigInt?
+  amount            Int
+  contract_date     DateTime?        @db.Date
+  payment_cycle_id  BigInt?
+  payment_date      DateTime?        @db.Date
+  payment_method_id BigInt?
+  notes             String?
+  created_at        DateTime?        @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  updated_at        DateTime?        @db.Timestamptz(6)
+  deleted_at        DateTime?        @db.Timestamptz(6)
+  categories        categories?      @relation(fields: [category_id], references: [id], onUpdate: NoAction)
+  payment_cycles    payment_cycles?  @relation(fields: [payment_cycle_id], references: [id], onUpdate: NoAction)
+  payment_methods   payment_methods? @relation(fields: [payment_method_id], references: [id], onUpdate: NoAction)
+  users             users            @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model users {
+  id            BigInt          @id @default(autoincrement())
+  email         String          @unique
+  password      String
+  created_at    DateTime?       @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  updated_at    DateTime?       @db.Timestamptz(6)
+  deleted_at    DateTime?       @db.Timestamptz(6)
+  categories    categories[]
+  subscriptions subscriptions[]
 }
