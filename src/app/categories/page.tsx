@@ -7,10 +7,30 @@ import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 
 const CategoriesPage = () => {
   const [categories, setCategories] = useState<string[]>([""]);
   const [showPopup, setShowPopup] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // カテゴリーを取得
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch("/api/auth/categories");
+        if (!res.ok) throw new Error("Failed to fetch");
+        const data = await res.json();
+        setCategories(data.map((c: any) => c.category_name));
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   // カテゴリーを追加
   const handleAddCategory = () => {
@@ -43,6 +63,21 @@ const CategoriesPage = () => {
     setCategories(newCategories);
   };
 
+  // 更新
+  const handleUpdateCategories = async () => {
+    try {
+      const res = await fetch("/api/auth/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ categories }),
+      });
+      if (!res.ok) throw new Error("Failed to update");
+      toast.success("カテゴリーを更新しました", { duration: 1000 });
+    } catch (error) {
+      console.error(error);
+      toast.success("更新に失敗しました", { duration: 1000 });
+    }
+  };
   // 表示
   const leftCategories = categories.slice(0, 5);
   const rightCategories = categories.slice(5);
@@ -50,6 +85,33 @@ const CategoriesPage = () => {
   // 共通フォーカススタイル
   const unifiedFocus =
     "border border-gray-300 focus-within:border-blue-200 focus-within:ring-1 focus-within:ring-blue-400 rounded-md shadow-sm";
+
+  // ローディング中の表示
+  if (loading) {
+    return (
+      <div
+        className={`transition-opacity duration-500 ${
+          loading ? "opacity-0" : "opacity-100"
+        }`}
+      >
+        <div className="sm:w-2/3 w-full mx-auto py-10 px-4 space-y-6">
+          <div className="space-y-3">
+            <Skeleton className="h-8 w-1/3 mx-auto" />
+            <Skeleton className="h-4 w-2/3 mx-auto" />
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+            {[...Array(10)].map((_, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <Skeleton className="h-10 w-full rounded-md" />
+                <Skeleton className="h-8 w-8 rounded-md" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -163,7 +225,10 @@ const CategoriesPage = () => {
 
           {/* 更新ボタン */}
           <div className="flex justify-center mt-5">
-            <Button className="cursor-pointer shadow-sm py-2 px-8 rounded-md bg-emerald-500 hover:bg-emerald-600 text-white">
+            <Button
+              className="cursor-pointer shadow-sm py-2 px-8 rounded-md bg-emerald-500 hover:bg-emerald-600 text-white"
+              onClick={handleUpdateCategories}
+            >
               更新
             </Button>
           </div>
