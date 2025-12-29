@@ -31,10 +31,13 @@ const NewSubscriptionPage = () => {
     "border border-gray-300 focus-within:border-blue-200 focus-within:ring-1 focus-within:ring-blue-400 rounded-md shadow-sm";
 
   return (
-    <div className="sm:w-2/3 w-full mx-auto py-5 md:py-10">
+    <div className="sm:w-2/3 w-full mx-auto py-5 md:py-10 px-4">
       <h1 className="text-2xl font-extrabold text-gray-600 mb-10 text-center hidden md:block">
         新規登録
       </h1>
+      <p className="text-sm text-gray-600 mb-10 text-center">
+        サブスクの情報を登録できます
+      </p>
 
       <div className="bg-white rounded-md shadow-sm p-8 w-full max-w-xl mx-auto">
         <form className="space-y-6">

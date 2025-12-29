@@ -120,7 +120,7 @@ const CategoriesPage = () => {
           カテゴリー管理
         </h1>
         <p className="text-sm text-gray-600 mb-15 text-center">
-          サブスクを分類するカテゴリーを追加・削除して管理できます。
+          サブスクを分類するカテゴリーを追加・削除して管理できます
         </p>
 
         {/* ポップアップ */}
