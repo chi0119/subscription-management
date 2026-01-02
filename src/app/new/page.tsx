@@ -7,6 +7,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabaseClient";
+import { PageHeader } from "@/components/page-header";
 
 const NewSubscriptionPage = () => {
   const [amount, setAmount] = useState<string>("");
@@ -101,14 +102,9 @@ const NewSubscriptionPage = () => {
 
   return (
     <div className="sm:w-2/3 w-full mx-auto py-5 md:py-10 px-4">
-      <h1 className="text-2xl font-extrabold text-gray-600 mb-10 text-center hidden md:block">
-        新規登録
-      </h1>
-      <p className="text-sm text-gray-600 mb-10 text-center">
-        サブスクの情報を登録できます
-      </p>
+      <PageHeader title="新規登録" description="サブスクの情報を登録できます" />
 
-      <div className=" rounded-md  p-8 w-full max-w-xl mx-auto">
+      <div className=" rounded-md  p-4 w-full max-w-xl mx-auto">
         <SubscriptionForm
           amount={amount}
           setAmount={setAmount}
