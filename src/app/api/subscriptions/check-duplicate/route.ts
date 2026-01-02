@@ -10,8 +10,6 @@ export async function GET(request: Request) {
   }
 
   try {
-    // .maybeSingle() をやめて、単純に select() する
-    // count: 'exact' を使うと、中身を取得せずに数だけ数えられます
     const { count, error } = await supabase
       .from("subscriptions")
       .select("id", { count: "exact", head: true })
@@ -19,7 +17,6 @@ export async function GET(request: Request) {
 
     if (error) throw error;
 
-    // 件数が 0 より多ければ重複（true）
     return NextResponse.json({ isDuplicate: (count ?? 0) > 0 });
   } catch (error) {
     console.error("重複チェックエラー:", error);
