@@ -120,10 +120,26 @@
   * {
     @apply border-border outline-ring/50;
   }
+  
+  html {
+    /* 全ページでスクロールバーの溝を固定 */
+    scrollbar-gutter: stable !important;
+  }
+
   body {
     @apply bg-background text-foreground text-gray-600;
     font-family: Meiryo, "メイリオ", sans-serif;
+    
+    /* Radix UIなどの干渉を全ページでシャットアウト */
+    padding-right: 0px !important;
+    margin-right: 0px !important;
   }
+}
+
+/* data属性のセレクタは、念のためlayerの外でも!importantで残します */
+[data-radix-scroll-lock] {
+  padding-right: 0px !important;
+  overflow: auto !important;
 }
 
 /* 下線 */
@@ -181,3 +197,4 @@ input:-webkit-autofill:active {
   -webkit-text-fill-color: #000 !important;
   transition: background-color 5000s ease-in-out 0s;
 }
+

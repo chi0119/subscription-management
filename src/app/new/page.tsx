@@ -119,7 +119,7 @@ const NewSubscriptionPage = () => {
     <div className="sm:w-2/3 w-full mx-auto py-5 md:py-10 px-4">
       <PageHeader title="新規登録" description="サブスクの情報を登録できます" />
 
-      <div className=" rounded-md  p-4 w-full max-w-xl mx-auto">
+      <div className=" rounded-md w-full max-w-xl mx-auto">
         <SubscriptionForm
           amount={amount}
           setAmount={setAmount}

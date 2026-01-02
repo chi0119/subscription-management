@@ -57,6 +57,18 @@ export const SubscriptionForm = ({
     paymentMethod: initialData?.paymentMethod || "",
     notes: initialData?.notes || "",
   });
+  const isEdit = !!initialData?.subscriptionName;
+
+  const buttonLabel = isSubmitting
+    ? isEdit
+      ? "更新中..."
+      : "登録中..."
+    : isEdit
+    ? "更新"
+    : "登録";
+
+  const titleText = isEdit ? "この内容で更新します" : "この内容を登録します";
+  const successText = isEdit ? "更新が完了しました" : "登録が完了しました";
 
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [isDuplicateDialogOpen, setIsDuplicateDialogOpen] = useState(false);
@@ -114,8 +126,13 @@ export const SubscriptionForm = ({
         setIsDuplicateDialogOpen(true);
         return;
       }
-
-      setIsConfirmDialogOpen(true);
+      if (isEdit) {
+        // 更新時は直接保存
+        await handleRegister();
+      } else {
+        // 新規登録時のみ、確認用ポップアップを表示
+        setIsConfirmDialogOpen(true);
+      }
     } catch (error) {
       console.error("重複チェックエラー:", error);
       toast.error("重複チェックに失敗しました");
@@ -134,7 +151,14 @@ export const SubscriptionForm = ({
     if (success) {
       setIsConfirmDialogOpen(false);
       setIsDuplicateDialogOpen(false);
-      setTimeout(() => setIsDoneDialogOpen(true), 100);
+
+      if (isEdit) {
+        // 更新時は完了ポップアップを出さない
+        onGoToList();
+      } else {
+        // 新規登録時のみ、「登録完了」のポップアップを出す
+        setTimeout(() => setIsDoneDialogOpen(true), 100);
+      }
     }
   };
 
@@ -394,7 +418,7 @@ export const SubscriptionForm = ({
           className="py-2 px-8 bg-emerald-500 hover:bg-emerald-600 text-white cursor-pointer"
           disabled={isSubmitting}
         >
-          {isSubmitting ? "登録中..." : "登録"}
+          {buttonLabel}
         </Button>
 
         {/* 重複確認ダイアログ */}
@@ -405,32 +429,9 @@ export const SubscriptionForm = ({
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle className="text-center">
-                「{formData.subscriptionName}」は登録されています
+                「{formData.subscriptionName}」は既に登録されています
                 <br />
-                よろしいですか？
-              </AlertDialogTitle>
-            </AlertDialogHeader>
-            <AlertDialogFooter className="flex justify-center gap-3 sm:justify-center">
-              <AlertDialogAction
-                onClick={handleProceedFromDuplicate}
-                className="bg-emerald-500 hover:bg-emerald-600"
-              >
-                登録
-              </AlertDialogAction>
-              <AlertDialogCancel>いいえ</AlertDialogCancel>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-
-        {/* 登録確認ダイアログ */}
-        <AlertDialog
-          open={isConfirmDialogOpen}
-          onOpenChange={setIsConfirmDialogOpen}
-        >
-          <AlertDialogContent>
-            <AlertDialogHeader className="mb-6">
-              <AlertDialogTitle className="whitespace-pre-line text-center font-normal">
-                この内容を登録します{"\n"}よろしいでしょうか
+                このまま{isEdit ? "更新" : "登録"}してもよろしいですか？
               </AlertDialogTitle>
             </AlertDialogHeader>
             <AlertDialogFooter className="flex justify-center gap-3 sm:justify-center">
@@ -445,7 +446,31 @@ export const SubscriptionForm = ({
           </AlertDialogContent>
         </AlertDialog>
 
-        {/* 登録完了ダイアログ */}
+        {/* 実行確認ダイアログ */}
+        <AlertDialog
+          open={isConfirmDialogOpen}
+          onOpenChange={setIsConfirmDialogOpen}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader className="mb-6">
+              <AlertDialogTitle className="whitespace-pre-line text-center font-normal">
+                この内容を登録します
+                {"\n"}よろしいでしょうか
+              </AlertDialogTitle>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="flex justify-center gap-3 sm:justify-center">
+              <AlertDialogAction
+                onClick={handleRegister}
+                className="bg-emerald-500 hover:bg-emerald-600"
+              >
+                登録
+              </AlertDialogAction>
+              <AlertDialogCancel>いいえ</AlertDialogCancel>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* 完了ダイアログ */}
         <AlertDialog open={isDoneDialogOpen} onOpenChange={setIsDoneDialogOpen}>
           <AlertDialogContent>
             <AlertDialogHeader className="mb-6">
@@ -460,9 +485,13 @@ export const SubscriptionForm = ({
               >
                 一覧へ
               </Button>
-              <Button variant="outline" onClick={handleContinue}>
-                続けて登録
-              </Button>
+
+              {/* 新規登録時のみ「続けて登録」ボタンを表示する */}
+              {!isEdit && (
+                <Button variant="outline" onClick={handleContinue}>
+                  続けて登録
+                </Button>
+              )}
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
