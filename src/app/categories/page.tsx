@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+import { PageHeader } from "@/components/page-header";
 
 const CategoriesPage = () => {
   const [categories, setCategories] = useState<string[]>([""]);
@@ -116,12 +117,10 @@ const CategoriesPage = () => {
   return (
     <>
       <div className="sm:w-2/3 w-full mx-auto py-5 md:py-10 px-4">
-        <h1 className="text-2xl font-extrabold text-gray-600 mb-10 text-center hidden md:block">
-          カテゴリー管理
-        </h1>
-        <p className="text-sm text-gray-600 mb-15 text-center">
-          サブスクを分類するカテゴリーを追加・削除して管理できます
-        </p>
+        <PageHeader
+          title="カテゴリー管理"
+          description="サブスクを分類するカテゴリーを追加・削除して管理できます"
+        />
 
         {/* ポップアップ */}
         {showPopup && (
