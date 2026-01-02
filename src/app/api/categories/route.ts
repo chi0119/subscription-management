@@ -8,7 +8,8 @@ const prisma = new PrismaClient();
 // カテゴリー 一覧取得
 export async function GET() {
   const session = await getServerSession(authOptions);
-  console.log("✅ セッション情報:", session);
+  // 確認用
+  // console.log("セッション情報:", session);
 
   if (!session?.user?.id) {
     // 確認用

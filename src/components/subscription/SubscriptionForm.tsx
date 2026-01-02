@@ -12,19 +12,39 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../ui/alert-dialog";
+import { AlertDialogTrigger } from "@radix-ui/react-alert-dialog";
 
 interface SubscriptionFormProps {
   amount: string;
   setAmount: (value: string) => void;
-  onSubmit: (formData: Record<string, string>) => void;
+  onSubmit: (formData: Record<string, string>) => Promise<boolean>;
+  onGoToList: () => void; // 追加: 一覧へ遷移する関数
   initialData?: Record<string, string>;
+  isSubmitting?: boolean;
+  categories?: Array<{ id: number; category_name: string }>;
+  paymentCycles?: Array<{ id: number; payment_cycle_name: string }>;
+  paymentMethods?: Array<{ id: number; payment_method_name: string }>;
 }
 
 export const SubscriptionForm = ({
   amount,
   setAmount,
   onSubmit,
+  onGoToList,
   initialData,
+  isSubmitting = false,
+  categories = [],
+  paymentCycles = [],
+  paymentMethods = [],
 }: SubscriptionFormProps) => {
   const [formData, setFormData] = useState({
     subscriptionName: initialData?.subscriptionName || "",
@@ -35,25 +55,64 @@ export const SubscriptionForm = ({
     paymentMethod: initialData?.paymentMethod || "",
     notes: initialData?.notes || "",
   });
+
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [isDoneDialogOpen, setIsDoneDialogOpen] = useState(false);
+
   // 共通フォーカススタイル
   const unifiedFocus =
-    "border border-gray-300 focus-within:border-blue-200 focus-within:ring-1 focus-within:ring-blue-400 rounded-md shadow-sm";
+    "border border-gray-300 focus-within:border-blue-400 rounded-md shadow-sm";
 
   // 金額欄 カンマ区切り
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/,/g, "");
     if (!/^\d*$/.test(value)) return;
-    const formattedValue = Number(value).toLocaleString();
-    setAmount(formattedValue);
+    setAmount(Number(value).toLocaleString());
   };
+
+  const handleRegister = async () => {
+    const success = await onSubmit({ ...formData, amount });
+    if (success) {
+      setIsConfirmDialogOpen(false);
+
+      setTimeout(() => {
+        setIsDoneDialogOpen(true);
+      }, 100);
+    }
+  };
+
+  const handleContinue = () => {
+    setIsDoneDialogOpen(false);
+    setFormData({
+      subscriptionName: "",
+      category: "",
+      contractDate: "",
+      paymentCycle: "",
+      paymentDate: "",
+      paymentMethod: "",
+      notes: "",
+    });
+    setAmount("");
+  };
+
+  const handleGoToList = () => {
+    setIsDoneDialogOpen(false);
+    setTimeout(() => {
+      onGoToList();
+    }, 200);
+  };
+
   return (
-    <form
-      className="space-y-6"
-      onSubmit={(e) => {
-        e.preventDefault();
-        onSubmit({ ...formData, amount });
-      }}
-    >
+    <div className="space-y-6">
+      <style jsx>{`
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
+        input:-webkit-autofill:active {
+          -webkit-box-shadow: 0 0 0 30px white inset !important;
+          box-shadow: 0 0 0 30px white inset !important;
+        }
+      `}</style>
       {/* サブスク名 */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-2">
         <Label
@@ -73,7 +132,7 @@ export const SubscriptionForm = ({
             onChange={(e) =>
               setFormData({ ...formData, subscriptionName: e.target.value })
             }
-            className="border-none shadow-none focus-visible:ring-0 focus-visible:outline-none"
+            className="border-none shadow-none focus-visible:ring-0 focus-visible:outline-none bg-transparent"
           />
         </div>
       </div>
@@ -102,16 +161,11 @@ export const SubscriptionForm = ({
               <SelectValue placeholder="選択してください" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="video">動画サービス</SelectItem>
-              <SelectItem value="music">音楽サービス</SelectItem>
-              <SelectItem value="cloud">クラウドサービス</SelectItem>
-              <SelectItem value="utility">ユーティリティ</SelectItem>
-              <SelectItem value="education">教育</SelectItem>
-              <SelectItem value="game">ゲーム</SelectItem>
-              <SelectItem value="fitness">フィットネス</SelectItem>
-              <SelectItem value="news">ニュース</SelectItem>
-              <SelectItem value="books">書籍・雑誌</SelectItem>
-              <SelectItem value="other">その他</SelectItem>
+              {categories.map((cat) => (
+                <SelectItem key={cat.id} value={cat.id.toString()}>
+                  {cat.category_name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -125,7 +179,6 @@ export const SubscriptionForm = ({
         >
           金額
         </Label>
-
         <div
           className={`flex items-center w-full sm:max-w-sm rounded-md shadow-sm ${unifiedFocus} h-10`}
         >
@@ -135,7 +188,7 @@ export const SubscriptionForm = ({
             value={amount}
             onChange={handleAmountChange}
             placeholder="0"
-            className="text-right border-none shadow-none focus-visible:ring-0 focus-visible:outline-none h-full"
+            className="text-right border-none shadow-none focus-visible:ring-0 focus-visible:outline-none h-full bg-transparent"
           />
           <span className="inline-flex items-center justify-center px-3 text-gray-600 sm:text-sm h-full">
             円
@@ -162,7 +215,7 @@ export const SubscriptionForm = ({
             onChange={(e) =>
               setFormData({ ...formData, contractDate: e.target.value })
             }
-            className="border-none shadow-none focus-visible:ring-0 focus-visible:outline-none"
+            className="border-none shadow-none focus-visible:ring-0 focus-visible:outline-none bg-transparent"
           />
         </div>
       </div>
@@ -191,10 +244,9 @@ export const SubscriptionForm = ({
               <SelectValue placeholder="選択してください" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="30days">30日（30日間固定）</SelectItem>
-              {Array.from({ length: 12 }, (_, i) => (
-                <SelectItem key={i} value={(i + 1).toString()}>
-                  {i + 1}ヶ月
+              {paymentCycles.map((cycle) => (
+                <SelectItem key={cycle.id} value={cycle.id.toString()}>
+                  {cycle.payment_cycle_name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -260,14 +312,11 @@ export const SubscriptionForm = ({
               <SelectValue placeholder="選択してください" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="credit">クレジットカード</SelectItem>
-              <SelectItem value="carrier">キャリア決済</SelectItem>
-              <SelectItem value="id">ID決済</SelectItem>
-              <SelectItem value="gift">プリペイド・ギフトカード</SelectItem>
-              <SelectItem value="convenience">コンビニ・後払い</SelectItem>
-              <SelectItem value="bank">口座振替</SelectItem>
-              <SelectItem value="electronic">電子マネー</SelectItem>
-              <SelectItem value="other">その他</SelectItem>
+              {paymentMethods.map((method) => (
+                <SelectItem key={method.id} value={method.id.toString()}>
+                  {method.payment_method_name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -293,20 +342,67 @@ export const SubscriptionForm = ({
             }
             placeholder="補足事項 など"
             rows={4}
-            className="border-none shadow-none focus-visible:ring-0 focus-visible:outline-none"
+            className="border-none shadow-none focus-visible:ring-0 focus-visible:outline-none bg-transparent"
           />
         </div>
       </div>
 
-      {/* 登録ボタン */}
+      {/* 登録ボタン & ダイアログ */}
       <div className="flex justify-center pt-6">
-        <Button
-          type="submit"
-          className="py-2 px-8 bg-emerald-500 hover:bg-emerald-600 text-white cursor-pointer"
+        {/* 登録確認用ダイアログ */}
+        <AlertDialog
+          open={isConfirmDialogOpen}
+          onOpenChange={setIsConfirmDialogOpen}
         >
-          登録
-        </Button>
+          <AlertDialogTrigger asChild>
+            <Button
+              className="py-2 px-8 bg-emerald-500 hover:bg-emerald-600 text-white cursor-pointer"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "登録中..." : "登録"}
+            </Button>
+          </AlertDialogTrigger>
+
+          <AlertDialogContent>
+            <AlertDialogHeader className="mb-6">
+              <AlertDialogTitle className="whitespace-pre-line text-center font-normal">
+                この内容を登録します{"\n"}よろしいでしょうか
+              </AlertDialogTitle>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="flex justify-center gap-3 sm:justify-center">
+              <AlertDialogAction
+                onClick={handleRegister}
+                className="bg-emerald-500 hover:bg-emerald-600"
+              >
+                登録
+              </AlertDialogAction>
+              <AlertDialogCancel>いいえ</AlertDialogCancel>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* 登録完了ダイアログ */}
+        <AlertDialog open={isDoneDialogOpen} onOpenChange={setIsDoneDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader className="mb-6">
+              <AlertDialogTitle className="text-center font-normal">
+                登録が完了しました
+              </AlertDialogTitle>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="flex justify-center gap-3 sm:justify-center">
+              <Button
+                onClick={handleGoToList}
+                className="bg-emerald-500 hover:bg-emerald-600"
+              >
+                一覧へ
+              </Button>
+              <Button variant="outline" onClick={handleContinue}>
+                続けて登録
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
-    </form>
+    </div>
   );
 };

@@ -19,7 +19,7 @@ const CategoriesPage = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch("/api/auth/categories");
+        const res = await fetch("/api/categories");
         if (!res.ok) throw new Error("Failed to fetch");
         const data = await res.json();
         setCategories(data.map((c: any) => c.category_name));
@@ -66,7 +66,7 @@ const CategoriesPage = () => {
   // 更新
   const handleUpdateCategories = async () => {
     try {
-      const res = await fetch("/api/auth/categories", {
+      const res = await fetch("/api/categories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ categories }),

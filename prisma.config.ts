@@ -1,13 +1,21 @@
 import "dotenv/config";
-import { defineConfig, env } from "prisma/config";
+import { env } from "prisma/config";
+import { PrismaClient } from "@/generated/prisma/client";
 
-export default defineConfig({
+const databaseUrl = env("DATABASE_URL");
+if (!databaseUrl) throw new Error("DATABASE_URL is not set");
+
+export const prisma = new PrismaClient({
+  datasources: {
+    db: {
+      url: databaseUrl,
+    },
+  },
+});
+
+export default {
   schema: "prisma/schema.prisma",
   migrations: {
     path: "prisma/migrations",
   },
-  engine: "classic",
-  datasource: {
-    url: env("DATABASE_URL"),
-  },
-});
+};
