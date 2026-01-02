@@ -100,6 +100,21 @@ const NewSubscriptionPage = () => {
     router.refresh();
   };
 
+  // 重複チェック
+  const handleCheckDuplicate = async (name: string): Promise<boolean> => {
+    try {
+      const res = await fetch(
+        `/api/subscriptions/check-duplicate?name=${encodeURIComponent(name)}`
+      );
+      if (!res.ok) return false;
+      const data = await res.json();
+      return data.isDuplicate;
+    } catch (error) {
+      console.error("重複チェックエラー:", error);
+      return false;
+    }
+  };
+
   return (
     <div className="sm:w-2/3 w-full mx-auto py-5 md:py-10 px-4">
       <PageHeader title="新規登録" description="サブスクの情報を登録できます" />
@@ -110,6 +125,7 @@ const NewSubscriptionPage = () => {
           setAmount={setAmount}
           onSubmit={handleSubmit}
           onGoToList={handleGoToList}
+          onCheckDuplicate={handleCheckDuplicate}
           isSubmitting={isSubmitting}
           categories={categories}
           paymentCycles={paymentCycles}

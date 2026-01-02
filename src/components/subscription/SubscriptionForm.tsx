@@ -21,13 +21,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "../ui/alert-dialog";
-import { AlertDialogTrigger } from "@radix-ui/react-alert-dialog";
+import { toast } from "sonner";
 
 interface SubscriptionFormProps {
   amount: string;
   setAmount: (value: string) => void;
   onSubmit: (formData: Record<string, string>) => Promise<boolean>;
-  onGoToList: () => void; // 追加: 一覧へ遷移する関数
+  onGoToList: () => void;
+  onCheckDuplicate?: (name: string) => Promise<boolean>;
   initialData?: Record<string, string>;
   isSubmitting?: boolean;
   categories?: Array<{ id: number; category_name: string }>;
@@ -40,6 +41,7 @@ export const SubscriptionForm = ({
   setAmount,
   onSubmit,
   onGoToList,
+  onCheckDuplicate,
   initialData,
   isSubmitting = false,
   categories = [],
@@ -57,27 +59,82 @@ export const SubscriptionForm = ({
   });
 
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [isDuplicateDialogOpen, setIsDuplicateDialogOpen] = useState(false);
   const [isDoneDialogOpen, setIsDoneDialogOpen] = useState(false);
 
-  // 共通フォーカススタイル
   const unifiedFocus =
     "border border-gray-300 focus-within:border-blue-400 rounded-md shadow-sm";
 
-  // 金額欄 カンマ区切り
+  // 金額カンマ区切り
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/,/g, "");
     if (!/^\d*$/.test(value)) return;
     setAmount(Number(value).toLocaleString());
   };
 
+  // 「登録」ボタン押下時
+  const handleRegisterClick = async () => {
+    // バリデーション
+    if (!formData.subscriptionName.trim()) {
+      toast.error("サブスク名を入力してください");
+      return;
+    }
+    if (!formData.category) {
+      toast.error("カテゴリーを選択してください");
+      return;
+    }
+    if (!amount || amount === "0") {
+      toast.error("金額を入力してください");
+      return;
+    }
+    if (!formData.contractDate) {
+      toast.error("契約日を選択してください");
+      return;
+    }
+    if (!formData.paymentCycle) {
+      toast.error("支払いサイクルを選択してください");
+      return;
+    }
+    if (!formData.paymentDate) {
+      toast.error("支払日を選択してください");
+      return;
+    }
+    if (!formData.paymentMethod) {
+      toast.error("支払い方法を選択してください");
+      return;
+    }
+
+    // 重複チェック
+    try {
+      const isDuplicate = onCheckDuplicate
+        ? await onCheckDuplicate(formData.subscriptionName)
+        : false;
+
+      if (isDuplicate) {
+        setIsDuplicateDialogOpen(true);
+        return;
+      }
+
+      setIsConfirmDialogOpen(true);
+    } catch (error) {
+      console.error("重複チェックエラー:", error);
+      toast.error("重複チェックに失敗しました");
+    }
+  };
+
+  // 重複確認から直接登録へ進む
+  const handleProceedFromDuplicate = () => {
+    setIsDuplicateDialogOpen(false);
+    setTimeout(() => handleRegister(), 100);
+  };
+
+  // 保存処理の実行
   const handleRegister = async () => {
     const success = await onSubmit({ ...formData, amount });
     if (success) {
       setIsConfirmDialogOpen(false);
-
-      setTimeout(() => {
-        setIsDoneDialogOpen(true);
-      }, 100);
+      setIsDuplicateDialogOpen(false);
+      setTimeout(() => setIsDoneDialogOpen(true), 100);
     }
   };
 
@@ -97,9 +154,7 @@ export const SubscriptionForm = ({
 
   const handleGoToList = () => {
     setIsDoneDialogOpen(false);
-    setTimeout(() => {
-      onGoToList();
-    }, 200);
+    setTimeout(() => onGoToList(), 200);
   };
 
   return (
@@ -113,6 +168,7 @@ export const SubscriptionForm = ({
           box-shadow: 0 0 0 30px white inset !important;
         }
       `}</style>
+
       {/* サブスク名 */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-2">
         <Label
@@ -126,7 +182,6 @@ export const SubscriptionForm = ({
         >
           <Input
             id="subscriptionName"
-            name="subscriptionName"
             placeholder="サブスク名"
             value={formData.subscriptionName}
             onChange={(e) =>
@@ -154,10 +209,7 @@ export const SubscriptionForm = ({
               setFormData({ ...formData, category: value })
             }
           >
-            <SelectTrigger
-              id="category"
-              className="w-full h-10 border-none shadow-none focus:ring-0 focus:outline-none"
-            >
+            <SelectTrigger className="w-full h-10 border-none shadow-none focus:ring-0 focus:outline-none">
               <SelectValue placeholder="選択してください" />
             </SelectTrigger>
             <SelectContent>
@@ -184,7 +236,6 @@ export const SubscriptionForm = ({
         >
           <Input
             id="amount"
-            name="amount"
             value={amount}
             onChange={handleAmountChange}
             placeholder="0"
@@ -210,7 +261,6 @@ export const SubscriptionForm = ({
           <Input
             type="date"
             id="contractDate"
-            name="contractDate"
             value={formData.contractDate}
             onChange={(e) =>
               setFormData({ ...formData, contractDate: e.target.value })
@@ -237,10 +287,7 @@ export const SubscriptionForm = ({
               setFormData({ ...formData, paymentCycle: value })
             }
           >
-            <SelectTrigger
-              id="paymentCycle"
-              className="w-full h-10 border-none shadow-none focus:ring-0 focus:outline-none"
-            >
+            <SelectTrigger className="w-full h-10 border-none shadow-none focus:ring-0 focus:outline-none">
               <SelectValue placeholder="選択してください" />
             </SelectTrigger>
             <SelectContent>
@@ -271,10 +318,7 @@ export const SubscriptionForm = ({
               setFormData({ ...formData, paymentDate: value })
             }
           >
-            <SelectTrigger
-              id="paymentDate"
-              className="w-full h-10 border-none shadow-none focus:ring-0 focus:outline-none"
-            >
+            <SelectTrigger className="w-full h-10 border-none shadow-none focus:ring-0 focus:outline-none">
               <SelectValue placeholder="選択してください" />
             </SelectTrigger>
             <SelectContent>
@@ -305,10 +349,7 @@ export const SubscriptionForm = ({
               setFormData({ ...formData, paymentMethod: value })
             }
           >
-            <SelectTrigger
-              id="paymentMethod"
-              className="w-full h-10 border-none shadow-none focus:ring-0 focus:outline-none"
-            >
+            <SelectTrigger className="w-full h-10 border-none shadow-none focus:ring-0 focus:outline-none">
               <SelectValue placeholder="選択してください" />
             </SelectTrigger>
             <SelectContent>
@@ -322,7 +363,7 @@ export const SubscriptionForm = ({
         </div>
       </div>
 
-      {/* 備考欄 */}
+      {/* 備考 */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-center gap-2">
         <Label
           htmlFor="notes"
@@ -335,7 +376,6 @@ export const SubscriptionForm = ({
         >
           <Textarea
             id="notes"
-            name="notes"
             value={formData.notes}
             onChange={(e) =>
               setFormData({ ...formData, notes: e.target.value })
@@ -347,22 +387,46 @@ export const SubscriptionForm = ({
         </div>
       </div>
 
-      {/* 登録ボタン & ダイアログ */}
+      {/* ボタン & ダイアログ */}
       <div className="flex justify-center pt-6">
-        {/* 登録確認用ダイアログ */}
+        <Button
+          onClick={handleRegisterClick}
+          className="py-2 px-8 bg-emerald-500 hover:bg-emerald-600 text-white cursor-pointer"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "登録中..." : "登録"}
+        </Button>
+
+        {/* 重複確認ダイアログ */}
+        <AlertDialog
+          open={isDuplicateDialogOpen}
+          onOpenChange={setIsDuplicateDialogOpen}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-center">
+                「{formData.subscriptionName}」は登録されています
+                <br />
+                よろしいですか？
+              </AlertDialogTitle>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="flex justify-center gap-3 sm:justify-center">
+              <AlertDialogAction
+                onClick={handleProceedFromDuplicate}
+                className="bg-emerald-500 hover:bg-emerald-600"
+              >
+                登録
+              </AlertDialogAction>
+              <AlertDialogCancel>いいえ</AlertDialogCancel>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* 登録確認ダイアログ */}
         <AlertDialog
           open={isConfirmDialogOpen}
           onOpenChange={setIsConfirmDialogOpen}
         >
-          <AlertDialogTrigger asChild>
-            <Button
-              className="py-2 px-8 bg-emerald-500 hover:bg-emerald-600 text-white cursor-pointer"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "登録中..." : "登録"}
-            </Button>
-          </AlertDialogTrigger>
-
           <AlertDialogContent>
             <AlertDialogHeader className="mb-6">
               <AlertDialogTitle className="whitespace-pre-line text-center font-normal">
