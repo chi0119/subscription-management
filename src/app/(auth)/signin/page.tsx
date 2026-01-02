@@ -74,12 +74,6 @@ export default function SignInPage() {
           <CardTitle className="text-center text-2xl font-bold text-gray-600">
             ログイン
           </CardTitle>
-          <p className="text-center text-sm text-gray-600 mt-2">
-            アカウントをお持ちでない方は{" "}
-            <Link href="/signup" className="text-emerald-600 hover:underline">
-              新規登録
-            </Link>
-          </p>
         </CardHeader>
 
         <CardContent>
@@ -147,6 +141,13 @@ export default function SignInPage() {
                 "ログイン"
               )}
             </Button>
+
+            <p className="text-center text-sm text-gray-600 mt-6">
+              アカウントをお持ちでない方は{" "}
+              <Link href="/signup" className="text-emerald-600 hover:underline">
+                新規登録
+              </Link>
+            </p>
           </form>
         </CardContent>
       </Card>
