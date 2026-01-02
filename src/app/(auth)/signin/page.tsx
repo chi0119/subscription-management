@@ -55,10 +55,20 @@ export default function SignInPage() {
 
   // 全ページ共通のフォーカススタイル
   const unifiedFocusWrapper =
-    "border border-gray-300 focus-within:border-blue-200 focus-within:ring-1 focus-within:ring-blue-400 rounded-md shadow-sm";
+    "border border-gray-300 focus-within:border-blue-400 rounded-md shadow-sm";
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-start pt-20 px-4">
+      <style jsx>{`
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
+        input:-webkit-autofill:active {
+          -webkit-box-shadow: 0 0 0 30px white inset !important;
+          box-shadow: 0 0 0 30px white inset !important;
+        }
+      `}</style>
+
       <Card className="w-full max-w-md rounded-md shadow-sm">
         <CardHeader>
           <CardTitle className="text-center text-2xl font-bold text-gray-600">
@@ -96,7 +106,7 @@ export default function SignInPage() {
                   placeholder="user@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="border-none shadow-none focus-visible:ring-0 focus-visible:outline-none h-10"
+                  className="border-none shadow-none focus-visible:ring-0 focus-visible:outline-none h-10 bg-transparent"
                 />
               </div>
             </div>
@@ -117,7 +127,7 @@ export default function SignInPage() {
                   placeholder="パスワードを入力"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="border-none shadow-none focus-visible:ring-0 focus-visible:outline-none h-10"
+                  className="border-none shadow-none focus-visible:ring-0 focus-visible:outline-none h-10 bg-transparent"
                 />
               </div>
             </div>
