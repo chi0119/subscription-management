@@ -427,11 +427,13 @@ export const SubscriptionForm = ({
           onOpenChange={setIsDuplicateDialogOpen}
         >
           <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle className="text-center">
+            <AlertDialogHeader className="mb-4">
+              <AlertDialogTitle className="text-center text-base font-normal text-gray-600">
                 「{formData.subscriptionName}」は既に登録されています
                 <br />
-                このまま{isEdit ? "更新" : "登録"}してもよろしいですか？
+                <span className="text-sm text-gray-500 font-normal">
+                  このまま{isEdit ? "更新" : "登録"}してもよろしいでしょうか
+                </span>
               </AlertDialogTitle>
             </AlertDialogHeader>
             <AlertDialogFooter className="flex justify-center gap-3 sm:justify-center">
@@ -439,7 +441,7 @@ export const SubscriptionForm = ({
                 onClick={handleRegister}
                 className="bg-emerald-500 hover:bg-emerald-600"
               >
-                登録
+                {isEdit ? "更新" : "登録"}
               </AlertDialogAction>
               <AlertDialogCancel>いいえ</AlertDialogCancel>
             </AlertDialogFooter>
@@ -452,10 +454,11 @@ export const SubscriptionForm = ({
           onOpenChange={setIsConfirmDialogOpen}
         >
           <AlertDialogContent>
-            <AlertDialogHeader className="mb-6">
-              <AlertDialogTitle className="whitespace-pre-line text-center font-normal">
+            <AlertDialogHeader className="mb-4">
+              <AlertDialogTitle className="text-center text-base font-normal text-gray-600">
                 この内容を登録します
-                {"\n"}よろしいでしょうか
+                <br />
+                よろしいでしょうか
               </AlertDialogTitle>
             </AlertDialogHeader>
             <AlertDialogFooter className="flex justify-center gap-3 sm:justify-center">
@@ -473,8 +476,8 @@ export const SubscriptionForm = ({
         {/* 完了ダイアログ */}
         <AlertDialog open={isDoneDialogOpen} onOpenChange={setIsDoneDialogOpen}>
           <AlertDialogContent>
-            <AlertDialogHeader className="mb-6">
-              <AlertDialogTitle className="text-center font-normal">
+            <AlertDialogHeader className="mb-4">
+              <AlertDialogTitle className="text-center text-base font-normal text-gray-600">
                 登録が完了しました
               </AlertDialogTitle>
             </AlertDialogHeader>

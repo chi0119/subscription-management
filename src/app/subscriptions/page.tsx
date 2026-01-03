@@ -1,3 +1,5 @@
+// 一覧ページ
+
 "use client";
 
 import { SubscriptionForm } from "@/components/subscription/SubscriptionForm";
@@ -37,12 +39,50 @@ import { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { toast } from "sonner";
 
+// Supabaseクライアントの初期化
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || "",
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+);
+
 export default function SubscriptionsPage() {
-  // Supabaseクライアントの初期化
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || "",
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
-  );
+  // 一覧を取得
+  const [subscriptions, setSubscriptions] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchSubscriptions = async () => {
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from("subscriptions")
+        .select(
+          `
+          *,
+          categories(category_name),
+          payment_cycles(payment_cycle_name),
+          payment_methods(payment_method_name)
+        `
+        )
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      // 取得したデータを一覧表示用に変換
+      const formattedData = data?.map((item) => ({
+        ...item,
+        category_name: item.categories?.category_name,
+        payment_cycle: item.payment_cycles?.payment_cycle_name,
+        payment_method: item.payment_methods?.payment_method_name,
+      }));
+
+      setSubscriptions(formattedData || []);
+    } catch (error) {
+      console.error("データ取得エラー:", error);
+      toast.error("一覧の取得に失敗しました");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const [displayFilter, setDisplayFilter] = useState("");
 
@@ -71,9 +111,12 @@ export default function SubscriptionsPage() {
       if (cat) setCategories(cat);
       if (cyc) setPaymentCycles(cyc);
       if (met) setPaymentMethods(met);
+
+      // 一覧を取得
+      await fetchSubscriptions();
     };
     fetchMasters();
-  }, [supabase]);
+  }, []);
 
   const handleSelectChange = (value: string) => {
     if (value === "reset") {
@@ -106,23 +149,6 @@ export default function SubscriptionsPage() {
     setAmount(sub.amount.toLocaleString());
     setIsFormOpen(true);
   };
-
-  const subscriptions = [
-    {
-      id: 1,
-      subscription_name: "サンプルサブスク",
-      category_name: "動画",
-      category_id: 65,
-      amount: 1000,
-      contract_date: "2025-11-23",
-      payment_cycle: 1,
-      payment_cycle_id: 1,
-      payment_date: 26,
-      payment_method: "電子マネー",
-      payment_method_id: 3,
-      notes: "お試しで12月までで",
-    },
-  ];
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -220,16 +246,45 @@ export default function SubscriptionsPage() {
                     </TableCell>
 
                     <TableCell className="max-w-[100px] py-2 text-center">
-                      {sub.category_name}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="truncate block">
+                            {sub.category_name}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent className="bg-white text-gray-600 border-gray-300 shadow-lg rounded p-2 max-w-xs">
+                          {sub.category_name}
+                        </TooltipContent>
+                      </Tooltip>
                     </TableCell>
                     <TableCell className="text-right py-2">{`${sub.amount.toLocaleString()}円`}</TableCell>
                     <TableCell className=" py-2 text-center">
                       {formatDate(sub.contract_date)}
                     </TableCell>
-                    <TableCell className=" py-2 text-center">{`${sub.payment_cycle}ヶ月`}</TableCell>
+                    <TableCell className=" py-2 text-center">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="truncate block">
+                            {sub.payment_cycle}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent className="bg-white text-gray-600 border-gray-300 shadow-lg rounded p-2 max-w-xs">
+                          {sub.payment_cycle}
+                        </TooltipContent>
+                      </Tooltip>
+                    </TableCell>
                     <TableCell className=" py-2 text-center">{`${sub.payment_date}日`}</TableCell>
                     <TableCell className="max-w-[120px] py-2 text-center">
-                      {sub.payment_method || "-"}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="truncate block">
+                            {sub.payment_method || "-"}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent className="bg-white text-gray-600 border-gray-300 shadow-lg rounded p-2 max-w-xs">
+                          {sub.payment_method}
+                        </TooltipContent>
+                      </Tooltip>
                     </TableCell>
 
                     <TableCell className="max-w-[150px] py-2">
@@ -303,7 +358,7 @@ export default function SubscriptionsPage() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">支払いサイクル</span>
-                      <span className="text-gray-600">{`${sub.payment_cycle}ヶ月`}</span>
+                      <span className="text-gray-600">{sub.payment_cycle}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">支払日</span>
@@ -413,6 +468,14 @@ export default function SubscriptionsPage() {
                     setIsFormOpen(false);
                     setEditingSubscription(null);
                   }}
+                  onCheckDuplicate={async (name) => {
+                    const isDuplicate = subscriptions.some(
+                      (sub) =>
+                        sub.subscription_name === name &&
+                        sub.id !== editingSubscription?.id
+                    );
+                    return isDuplicate;
+                  }}
                   onSubmit={async (values) => {
                     try {
                       // 金額からカンマを除去
@@ -437,6 +500,9 @@ export default function SubscriptionsPage() {
                         })
                         .eq("id", editingSubscription.id);
                       if (error) throw error;
+
+                      await fetchSubscriptions();
+
                       setIsFormOpen(false);
                       toast.success("更新しました");
                       return true;
