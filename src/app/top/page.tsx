@@ -1,15 +1,19 @@
 // TOPページ
+"use client";
 
 import { Card, CardContent } from "@/components/ui/card";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@radix-ui/react-tooltip";
+} from "@/components/ui/tooltip";
 import { WalletCards } from "lucide-react";
 
 export default function TopPage() {
+  const { averageMonthlyAmount, isLoading } = useSubscription();
+
   // サブスクリプションのダミーデータ
   const subscriptions = [
     { name: "サブスク1", price: "550", id: 1, isPaid: true },
@@ -28,6 +32,7 @@ export default function TopPage() {
         <div className="mt-5 mb-30">
           <div className="flex flex-col items-center">
             <div className="sm:w-2/3 w-full">
+              {/* 今月の合計金額 */}
               {/* 今月の合計金額*/}
               <TooltipProvider>
                 <Tooltip>
@@ -47,10 +52,10 @@ export default function TopPage() {
                   <TooltipContent
                     side="bottom"
                     align="center"
-                    sideOffset={-50}
-                    className="text-sm md:text-base rounded-md shadow-md px-3"
+                    sideOffset={-60}
+                    className="bg-transparent text-gray-600 border-gray-200 rounded-md shadow-md px-3 py-1.5 text-sm md:text-base leading-tight"
                   >
-                    <p>今月支払いのサブスク合計金額です</p>
+                    <p className="pt-1">今月支払いのサブスク合計金額です</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -65,17 +70,40 @@ export default function TopPage() {
                           <p className="text-sm md:text-base whitespace-nowrap leading-none ">
                             月の平均金額
                           </p>
-                          <p className="text-sm md:text-base leading-none">{`${"10,294"}円`}</p>
+                          {/* スピナーを表示 */}
+                          <p className="text-sm md:text-base leading-none">
+                            {isLoading ? (
+                              <span className="inline-flex items-center gap-1 text-gray-400">
+                                <svg
+                                  className="animate-spin text-emerald-500"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="20"
+                                  height="20"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                >
+                                  <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                                </svg>
+                              </span>
+                            ) : (
+                              `${averageMonthlyAmount.toLocaleString()}円`
+                            )}
+                          </p>
                         </div>
                       </Card>
                     </TooltipTrigger>
+                    {/* ✅ Radix風にサイズ・配色を調整 */}
                     <TooltipContent
                       side="bottom"
                       align="center"
-                      sideOffset={3}
-                      className="text-xs md:text-sm  rounded-md shadow-md px-3"
+                      sideOffset={-5}
+                      className="bg-white text-gray-600 border border-gray-200 rounded-md shadow-sm px-2.5 py-1.5 text-xs leading-none racking-tight"
                     >
-                      <p>1ヶ月あたりの平均金額です</p>
+                      <p className="pt-1">1ヶ月あたりの平均金額です</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>

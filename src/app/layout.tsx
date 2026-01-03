@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 
 import ConditionalHeader from "@/components/conditional-header";
+import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,16 +21,21 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className={inter.className}>
-        {/* ヘッダー　全ページ共通 */}
-        <ConditionalHeader />
+        {/* グローバルにProviderを適用 */}
+        <SubscriptionProvider>
+          {/* 全ページ共通ヘッダー */}
+          <ConditionalHeader />
 
-        {/* メインコンテンツ */}
-        <main className="container mx-auto px-4 py-8 min-h-screen">
-          {children}
-        </main>
-        <Toaster position="top-center" />
+          {/* メインコンテンツ */}
+          <main className="container mx-auto px-4 py-8 min-h-screen">
+            {children}
+          </main>
 
-        {/* Footer などを配置 */}
+          {/* トースト通知 */}
+          <Toaster position="top-center" />
+
+          {/* Footerなどを後で追加 */}
+        </SubscriptionProvider>
       </body>
     </html>
   );

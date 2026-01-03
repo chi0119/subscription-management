@@ -52,6 +52,7 @@ import {
   PaymentMethod,
   Subscription,
 } from "@/types/subscription";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 
 // Supabaseクライアントの初期化
 const supabase = createClient(
@@ -60,6 +61,8 @@ const supabase = createClient(
 );
 
 export default function SubscriptionsPage() {
+  const { averageMonthlyAmount, refreshAverage } = useSubscription();
+
   // 一覧を取得
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
 
@@ -91,8 +94,11 @@ export default function SubscriptionsPage() {
       }));
 
       setSubscriptions(formattedData || []);
-    } catch (error) {
-      console.error("データ取得エラー:", error);
+
+      // 月の平均金額を再計算・更新
+      await refreshAverage();
+    } catch (fetchError) {
+      console.error("データ取得エラー:", fetchError);
       toast.error("一覧の取得に失敗しました");
     } finally {
       setIsLoading(false);
@@ -231,7 +237,29 @@ export default function SubscriptionsPage() {
                   <p className="text-2xl whitespace-nowrap md:text-2xl">
                     月の平均金額
                   </p>
-                  <p className="text-2xl md:text-2xl font-bold">{`${"10,294"}円`}</p>
+                  {isLoading ? (
+                    <div className="flex items-center gap-2 text-emerald-600">
+                      <svg
+                        className="animate-spin"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                      </svg>
+                      <span className="text-lg text-gray-500">計算中...</span>
+                    </div>
+                  ) : (
+                    <p className="text-2xl md:text-2xl font-bold">
+                      {averageMonthlyAmount.toLocaleString()}円
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -607,13 +635,11 @@ export default function SubscriptionsPage() {
                   }}
                   onSubmit={async (values) => {
                     try {
-                      // 金額からカンマを除去
                       const rawAmount = parseInt(
-                        values.amount.replace(/,/g, ""),
+                        String(values.amount).replace(/,/g, ""),
                         10
                       );
 
-                      // 更新処理
                       const { error } = await supabase
                         .from("subscriptions")
                         .update({
@@ -628,9 +654,11 @@ export default function SubscriptionsPage() {
                           updated_at: new Date().toISOString(),
                         })
                         .eq("id", editingSubscription.id);
+
                       if (error) throw error;
 
                       await fetchSubscriptions();
+                      await refreshAverage();
 
                       setIsFormOpen(false);
                       toast.success("更新しました");
