@@ -1,5 +1,3 @@
-// 新規登録ページ
-
 "use client";
 
 import { SubscriptionForm } from "@/components/subscription/SubscriptionForm";
@@ -24,28 +22,29 @@ const NewSubscriptionPage = () => {
 
   const router = useRouter();
 
+  const handleGoToList = () => {
+    router.push("/subscriptions");
+    router.refresh();
+  };
+
   // マスターデータ取得
   useEffect(() => {
     const fetchMasterData = async () => {
       try {
-        const { data: categoriesData } = await supabase
+        const { data: cat } = await supabase
           .from("categories")
           .select("id, category_name")
           .order("id");
-
-        const { data: cyclesData } = await supabase
+        const { data: cyc } = await supabase
           .from("payment_cycles_ordered")
           .select("id, payment_cycle_name");
-
-        const { data: methodsData } = await supabase
+        const { data: met } = await supabase
           .from("payment_methods_ordered")
           .select("id, payment_method_name");
-
-        setCategories(categoriesData || []);
-        setPaymentCycles(cyclesData || []);
-        setPaymentMethods(methodsData || []);
+        setCategories(cat || []);
+        setPaymentCycles(cyc || []);
+        setPaymentMethods(met || []);
       } catch (error) {
-        console.error("マスターデータ取得エラー:", error);
         toast.error("データの読み込みに失敗しました");
       }
     };
@@ -53,23 +52,13 @@ const NewSubscriptionPage = () => {
   }, []);
 
   // 登録処理
-  const handleSubmit = async (
-    formData: Record<string, string>
-  ): Promise<boolean> => {
+  const handleSubmit = async (formData: any): Promise<boolean> => {
     setIsSubmitting(true);
-
     try {
-      const numericAmount = Number(amount.replace(/,/g, ""));
-      const payload = {
-        ...formData,
-        amount: numericAmount,
-      };
-
       const res = await fetch("/api/subscriptions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-        credentials: "include",
+        body: JSON.stringify(formData),
       });
 
       if (res.status === 401) {
@@ -79,25 +68,20 @@ const NewSubscriptionPage = () => {
       }
 
       if (!res.ok) {
-        toast.error("登録に失敗しました");
+        const errorData = await res.json();
+        toast.error(
+          `登録に失敗しました: ${errorData.error || "エラーが発生しました"}`
+        );
         return false;
       }
 
-      // toast.success("サブスクを登録しました");
       return true;
     } catch (error) {
-      console.error("予期しないエラー:", error);
-      toast.error("エラーが発生しました");
+      toast.error("通信エラーが発生しました");
       return false;
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  // 一覧へ遷移
-  const handleGoToList = () => {
-    router.push("/subscriptions");
-    router.refresh();
   };
 
   // 重複チェック
@@ -110,7 +94,6 @@ const NewSubscriptionPage = () => {
       const data = await res.json();
       return data.isDuplicate;
     } catch (error) {
-      console.error("重複チェックエラー:", error);
       return false;
     }
   };
@@ -118,8 +101,7 @@ const NewSubscriptionPage = () => {
   return (
     <div className="sm:w-2/3 w-full mx-auto py-5 md:py-10 px-4">
       <PageHeader title="新規登録" description="サブスクの情報を登録できます" />
-
-      <div className=" rounded-md w-full max-w-xl mx-auto">
+      <div className="rounded-md w-full max-w-xl mx-auto">
         <SubscriptionForm
           amount={amount}
           setAmount={setAmount}

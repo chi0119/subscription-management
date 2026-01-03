@@ -24,41 +24,39 @@ export async function POST(req: Request) {
   );
 
   const body = await req.json();
+
   const {
-    subscriptionName,
-    category,
+    subscription_name,
+    category_id,
     amount,
-    contractDate,
-    paymentCycle,
-    paymentDate,
-    paymentMethod,
+    contract_date,
+    payment_cycle_id,
+    payment_date,
+    payment_method_id,
     notes,
   } = body;
 
   const numericAmount = Number(amount);
 
-  //   デバック用
-  //   console.log("受信データ:", {
-  //     subscriptionName,
-  //     category,
-  //     amount,
-  //     numericAmount,
-  //   });
-
-  if (!subscriptionName || !category || numericAmount <= 0) {
+  if (
+    !subscription_name ||
+    !category_id ||
+    isNaN(numericAmount) ||
+    numericAmount <= 0
+  ) {
     return new Response("Invalid input", { status: 400 });
   }
 
   const userId = session.user.id || session.user.email;
 
   const { error } = await supabase.from("subscriptions").insert({
-    subscription_name: subscriptionName,
-    category_id: Number(category),
+    subscription_name: subscription_name,
+    category_id: Number(category_id),
     amount: numericAmount,
-    contract_date: contractDate || null,
-    payment_cycle_id: paymentCycle ? Number(paymentCycle) : null,
-    payment_date: paymentDate || null,
-    payment_method_id: paymentMethod ? Number(paymentMethod) : null,
+    contract_date: contract_date || null,
+    payment_cycle_id: payment_cycle_id ? Number(payment_cycle_id) : null,
+    payment_date: payment_date || null,
+    payment_method_id: payment_method_id ? Number(payment_method_id) : null,
     notes: notes || null,
     user_id: userId,
   });
