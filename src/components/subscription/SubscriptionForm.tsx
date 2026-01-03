@@ -22,14 +22,15 @@ import {
   AlertDialogTitle,
 } from "../ui/alert-dialog";
 import { toast } from "sonner";
+import { Subscription } from "@/types/subscription";
 
 interface SubscriptionFormProps {
   amount: string;
   setAmount: (value: string) => void;
-  onSubmit: (formData: Record<string, string>) => Promise<boolean>;
+  onSubmit: (formData: any) => Promise<boolean>;
   onGoToList: () => void;
   onCheckDuplicate?: (name: string) => Promise<boolean>;
-  initialData?: Record<string, string>;
+  initialData?: Subscription | null;
   isSubmitting?: boolean;
   categories?: Array<{ id: number; category_name: string }>;
   paymentCycles?: Array<{ id: number; payment_cycle_name: string }>;
@@ -49,15 +50,15 @@ export const SubscriptionForm = ({
   paymentMethods = [],
 }: SubscriptionFormProps) => {
   const [formData, setFormData] = useState({
-    subscriptionName: initialData?.subscriptionName || "",
-    category: initialData?.category || "",
-    contractDate: initialData?.contractDate || "",
-    paymentCycle: initialData?.paymentCycle || "",
-    paymentDate: initialData?.paymentDate || "",
-    paymentMethod: initialData?.paymentMethod || "",
-    notes: initialData?.notes || "",
+    subscription_name: String(initialData?.subscription_name || ""),
+    category_id: String(initialData?.category_id || ""),
+    contract_date: String(initialData?.contract_date || ""),
+    payment_cycle_id: String(initialData?.payment_cycle_id || ""),
+    payment_date: String(initialData?.payment_date || ""),
+    payment_method_id: String(initialData?.payment_method_id || ""),
+    notes: String(initialData?.notes || ""),
   });
-  const isEdit = !!initialData?.subscriptionName;
+  const isEdit = !!initialData?.id;
 
   const buttonLabel = isSubmitting
     ? isEdit
@@ -87,11 +88,11 @@ export const SubscriptionForm = ({
   // 「登録」ボタン押下時
   const handleRegisterClick = async () => {
     // バリデーション
-    if (!formData.subscriptionName.trim()) {
+    if (!formData.subscription_name.trim()) {
       toast.error("サブスク名を入力してください");
       return;
     }
-    if (!formData.category) {
+    if (!formData.category_id) {
       toast.error("カテゴリーを選択してください");
       return;
     }
@@ -99,19 +100,19 @@ export const SubscriptionForm = ({
       toast.error("金額を入力してください");
       return;
     }
-    if (!formData.contractDate) {
+    if (!formData.contract_date) {
       toast.error("契約日を選択してください");
       return;
     }
-    if (!formData.paymentCycle) {
+    if (!formData.payment_cycle_id) {
       toast.error("支払いサイクルを選択してください");
       return;
     }
-    if (!formData.paymentDate) {
+    if (!formData.payment_date) {
       toast.error("支払日を選択してください");
       return;
     }
-    if (!formData.paymentMethod) {
+    if (!formData.payment_method_id) {
       toast.error("支払い方法を選択してください");
       return;
     }
@@ -119,7 +120,7 @@ export const SubscriptionForm = ({
     // 重複チェック
     try {
       const isDuplicate = onCheckDuplicate
-        ? await onCheckDuplicate(formData.subscriptionName)
+        ? await onCheckDuplicate(formData.subscription_name)
         : false;
 
       if (isDuplicate) {
@@ -147,7 +148,21 @@ export const SubscriptionForm = ({
 
   // 保存処理の実行
   const handleRegister = async () => {
-    const success = await onSubmit({ ...formData, amount });
+    const submitData = {
+      ...formData,
+      category_id: formData.category_id ? Number(formData.category_id) : null,
+      payment_cycle_id: formData.payment_cycle_id
+        ? Number(formData.payment_cycle_id)
+        : null,
+      payment_method_id: formData.payment_method_id
+        ? Number(formData.payment_method_id)
+        : null,
+      payment_date: formData.payment_date
+        ? Number(formData.payment_date)
+        : null,
+      amount: Number(amount.replace(/,/g, "")),
+    };
+    const success = await onSubmit(submitData);
     if (success) {
       setIsConfirmDialogOpen(false);
       setIsDuplicateDialogOpen(false);
@@ -165,12 +180,12 @@ export const SubscriptionForm = ({
   const handleContinue = () => {
     setIsDoneDialogOpen(false);
     setFormData({
-      subscriptionName: "",
-      category: "",
-      contractDate: "",
-      paymentCycle: "",
-      paymentDate: "",
-      paymentMethod: "",
+      subscription_name: "",
+      category_id: "",
+      contract_date: "",
+      payment_cycle_id: "",
+      payment_date: "",
+      payment_method_id: "",
       notes: "",
     });
     setAmount("");
@@ -196,7 +211,7 @@ export const SubscriptionForm = ({
       {/* サブスク名 */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-2">
         <Label
-          htmlFor="subscriptionName"
+          htmlFor="subscription_name"
           className="block text-sm font-medium text-gray-600 sm:w-1/4"
         >
           サブスク名
@@ -205,11 +220,11 @@ export const SubscriptionForm = ({
           className={`rounded-md shadow-sm w-full sm:max-w-sm ${unifiedFocus}`}
         >
           <Input
-            id="subscriptionName"
+            id="subscription_name"
             placeholder="サブスク名"
-            value={formData.subscriptionName}
+            value={formData.subscription_name}
             onChange={(e) =>
-              setFormData({ ...formData, subscriptionName: e.target.value })
+              setFormData({ ...formData, subscription_name: e.target.value })
             }
             className="border-none shadow-none focus-visible:ring-0 focus-visible:outline-none bg-transparent"
           />
@@ -219,7 +234,7 @@ export const SubscriptionForm = ({
       {/* カテゴリー */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-2">
         <Label
-          htmlFor="category"
+          htmlFor="category_id"
           className="block text-sm font-medium text-gray-600 sm:w-1/4"
         >
           カテゴリー
@@ -228,9 +243,9 @@ export const SubscriptionForm = ({
           className={`rounded-md shadow-sm w-full sm:max-w-sm ${unifiedFocus}`}
         >
           <Select
-            value={formData.category}
+            value={formData.category_id}
             onValueChange={(value) =>
-              setFormData({ ...formData, category: value })
+              setFormData({ ...formData, category_id: value })
             }
           >
             <SelectTrigger className="w-full h-10 border-none shadow-none focus:ring-0 focus:outline-none">
@@ -274,7 +289,7 @@ export const SubscriptionForm = ({
       {/* 契約日 */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-2">
         <Label
-          htmlFor="contractDate"
+          htmlFor="contract_date"
           className="block text-sm font-medium text-gray-600 sm:w-1/4"
         >
           契約日
@@ -284,10 +299,10 @@ export const SubscriptionForm = ({
         >
           <Input
             type="date"
-            id="contractDate"
-            value={formData.contractDate}
+            id="contract_date"
+            value={formData.contract_date}
             onChange={(e) =>
-              setFormData({ ...formData, contractDate: e.target.value })
+              setFormData({ ...formData, contract_date: e.target.value })
             }
             className="border-none shadow-none focus-visible:ring-0 focus-visible:outline-none bg-transparent"
           />
@@ -297,7 +312,7 @@ export const SubscriptionForm = ({
       {/* 支払いサイクル */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-2">
         <Label
-          htmlFor="paymentCycle"
+          htmlFor="payment_cycle_id"
           className="block text-sm font-medium text-gray-600 sm:w-1/4"
         >
           支払いサイクル
@@ -306,9 +321,9 @@ export const SubscriptionForm = ({
           className={`rounded-md shadow-sm w-full sm:max-w-sm ${unifiedFocus}`}
         >
           <Select
-            value={formData.paymentCycle}
+            value={formData.payment_cycle_id}
             onValueChange={(value) =>
-              setFormData({ ...formData, paymentCycle: value })
+              setFormData({ ...formData, payment_cycle_id: value })
             }
           >
             <SelectTrigger className="w-full h-10 border-none shadow-none focus:ring-0 focus:outline-none">
@@ -328,7 +343,7 @@ export const SubscriptionForm = ({
       {/* 支払日 */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-2">
         <Label
-          htmlFor="paymentDate"
+          htmlFor="payment_date"
           className="block text-sm font-medium text-gray-600 sm:w-1/4"
         >
           支払日
@@ -337,9 +352,9 @@ export const SubscriptionForm = ({
           className={`rounded-md shadow-sm w-full sm:max-w-sm ${unifiedFocus}`}
         >
           <Select
-            value={formData.paymentDate}
+            value={formData.payment_date}
             onValueChange={(value) =>
-              setFormData({ ...formData, paymentDate: value })
+              setFormData({ ...formData, payment_date: value })
             }
           >
             <SelectTrigger className="w-full h-10 border-none shadow-none focus:ring-0 focus:outline-none">
@@ -359,7 +374,7 @@ export const SubscriptionForm = ({
       {/* 支払い方法 */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-2">
         <Label
-          htmlFor="paymentMethod"
+          htmlFor="payment_method_id"
           className="block text-sm font-medium text-gray-600 sm:w-1/4"
         >
           支払い方法
@@ -368,9 +383,9 @@ export const SubscriptionForm = ({
           className={`rounded-md shadow-sm w-full sm:max-w-sm ${unifiedFocus}`}
         >
           <Select
-            value={formData.paymentMethod}
+            value={formData.payment_method_id}
             onValueChange={(value) =>
-              setFormData({ ...formData, paymentMethod: value })
+              setFormData({ ...formData, payment_method_id: value })
             }
           >
             <SelectTrigger className="w-full h-10 border-none shadow-none focus:ring-0 focus:outline-none">
@@ -429,7 +444,7 @@ export const SubscriptionForm = ({
           <AlertDialogContent>
             <AlertDialogHeader className="mb-4">
               <AlertDialogTitle className="text-center text-base font-normal text-gray-600">
-                「{formData.subscriptionName}」は既に登録されています
+                「{formData.subscription_name}」は既に登録されています
                 <br />
                 <span className="text-sm text-gray-500 font-normal">
                   このまま{isEdit ? "更新" : "登録"}してもよろしいでしょうか
@@ -438,7 +453,7 @@ export const SubscriptionForm = ({
             </AlertDialogHeader>
             <AlertDialogFooter className="flex justify-center gap-3 sm:justify-center">
               <AlertDialogAction
-                onClick={handleRegister}
+                onClick={handleProceedFromDuplicate}
                 className="bg-emerald-500 hover:bg-emerald-600"
               >
                 {isEdit ? "更新" : "登録"}
