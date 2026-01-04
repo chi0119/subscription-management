@@ -10,9 +10,11 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/page-header";
+import { CategoryUI } from "@/types/subscription";
 
 const CategoriesPage = () => {
-  const [categories, setCategories] = useState<string[]>([""]);
+  const [categories, setCategories] = useState<CategoryUI[]>([]);
+
   const [showPopup, setShowPopup] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -22,8 +24,17 @@ const CategoriesPage = () => {
       try {
         const res = await fetch("/api/categories");
         if (!res.ok) throw new Error("Failed to fetch");
-        const data = await res.json();
-        setCategories(data.map((c: any) => c.category_name));
+        const data = (await res.json()) as CategoryUI[];
+
+        setCategories(
+          data.map((c) => ({
+            id: String(c.id ?? ""),
+            user_id: String(c.user_id ?? ""),
+            name: c.category_name ?? "",
+            category_name: c.category_name ?? "",
+            deleted: false,
+          }))
+        );
       } catch (error) {
         console.error(error);
       } finally {
@@ -35,12 +46,15 @@ const CategoriesPage = () => {
 
   // カテゴリーを追加
   const handleAddCategory = () => {
-    const hasEmpty = categories.some((c) => c.trim() === "");
+    const hasEmpty = categories.some((c) => c.name.trim() === "");
     if (hasEmpty) {
       setShowPopup(true);
       return;
     }
-    setCategories((prev) => ["", ...prev]);
+    setCategories((prev) => [
+      { id: "", category_name: "", user_id: "", name: "", deleted: false },
+      ...prev,
+    ]);
   };
 
   // 3秒後にポップアップ削除
@@ -53,15 +67,25 @@ const CategoriesPage = () => {
 
   // カテゴリーを削除
   const handleDeleteCategory = (index: number) => {
-    const newCategories = categories.filter((_, i) => i !== index);
-    setCategories(newCategories);
+    setCategories((prev) => {
+      const newCategories = [...prev];
+      if (newCategories[index].id && newCategories[index].id !== "0") {
+        newCategories[index].deleted = true;
+      } else {
+        newCategories.splice(index, 1);
+      }
+
+      return newCategories;
+    });
   };
 
   // 入力変更
   const handleChangeCategory = (index: number, value: string) => {
-    const newCategories = [...categories];
-    newCategories[index] = value;
-    setCategories(newCategories);
+    setCategories((prev) => {
+      const newCategories = [...prev];
+      newCategories[index] = { ...newCategories[index], name: value };
+      return newCategories;
+    });
   };
 
   // 更新
@@ -70,10 +94,32 @@ const CategoriesPage = () => {
       const res = await fetch("/api/categories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ categories }),
+        body: JSON.stringify({
+          categories: categories.map(({ id, name, deleted }) => ({
+            id: id === "" ? null : id,
+            category_name: name,
+            deleted: !!deleted,
+          })),
+        }),
       });
+
       if (!res.ok) throw new Error("Failed to update");
-      toast.success("カテゴリーを更新しました", { duration: 1000 });
+
+      const refreshRes = await fetch("/api/categories");
+      if (refreshRes.ok) {
+        const data = await refreshRes.json();
+        setCategories(
+          data.map((c: any) => ({
+            id: String(c.id),
+            user_id: String(c.user_id),
+            name: c.category_name,
+            category_name: c.category_name,
+            deleted: false,
+          }))
+        );
+      }
+
+      toast.success("カテゴリーを更新しました");
     } catch (error) {
       console.error(error);
       toast.success("更新に失敗しました", { duration: 1000 });
@@ -150,60 +196,57 @@ const CategoriesPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full sm:w-2/3">
             {/* 左列 */}
             <div className="flex flex-col gap-3">
-              {leftCategories.map((category, index) => (
-                <div key={index} className="flex items-center gap-3">
-                  {/* 共通フォーカススタイル */}
-                  <div className={`w-full sm:max-w-sm h-10 ${unifiedFocus}`}>
+              {leftCategories.map((category, index) => {
+                if (category.deleted) return null;
+                const globalIndex = categories.findIndex(
+                  (c) => c.id === category.id
+                );
+                return (
+                  <div
+                    key={category.id || index}
+                    className="flex items-center gap-3"
+                  >
                     <Input
-                      type="text"
-                      value={category}
+                      value={category.name}
                       onChange={(e) =>
-                        handleChangeCategory(index, e.target.value)
+                        handleChangeCategory(globalIndex, e.target.value)
                       }
-                      className="w-full h-full px-3 py-2 border-none shadow-none focus-visible:ring-0 focus-visible:outline-none"
                       placeholder="入力してください"
                     />
-                  </div>
-
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleDeleteCategory(index)}
-                    className="rounded-md text-red-500 cursor-pointer hover:text-red-500 hover:bg-red-50"
-                    aria-label="削除"
-                  >
-                    <Trash2 size={20} />
-                  </Button>
-                </div>
-              ))}
-            </div>
-
-            {/* 右列 */}
-            <div className="flex flex-col gap-3">
-              {rightCategories.map((category, i) => {
-                const index = i + 5;
-                return (
-                  <div key={index} className="flex items-center gap-3">
-                    <div className={`w-full sm:max-w-sm h-10 ${unifiedFocus}`}>
-                      <Input
-                        type="text"
-                        value={category}
-                        onChange={(e) =>
-                          handleChangeCategory(index, e.target.value)
-                        }
-                        className="w-full h-full px-3 py-2 border-none shadow-none focus-visible:ring-0 focus-visible:outline-none"
-                        placeholder="入力してください"
-                      />
-                    </div>
-
                     <Button
                       type="button"
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleDeleteCategory(index)}
-                      className="rounded-md text-red-500 cursor-pointer hover:bg-gray-50"
-                      aria-label="削除"
+                      onClick={() => handleDeleteCategory(globalIndex)}
+                    >
+                      <Trash2 size={20} />
+                    </Button>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* 右列 */}
+            <div className="flex flex-col gap-3">
+              {rightCategories.map((category) => {
+                if (category.deleted) return null;
+                const globalIndex = categories.findIndex(
+                  (c) => c.id === category.id
+                );
+                return (
+                  <div key={category.id} className="flex items-center gap-3">
+                    <Input
+                      value={category.name}
+                      onChange={(e) =>
+                        handleChangeCategory(globalIndex, e.target.value)
+                      }
+                      placeholder="入力してください"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDeleteCategory(globalIndex)}
                     >
                       <Trash2 size={20} />
                     </Button>

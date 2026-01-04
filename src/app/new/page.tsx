@@ -34,12 +34,13 @@ const NewSubscriptionPage = () => {
         const { data: cat } = await supabase
           .from("categories")
           .select("id, category_name")
+          .is("deleted_at", null)
           .order("id");
         const { data: cyc } = await supabase
-          .from("payment_cycles_ordered")
+          .from("payment_cycles")
           .select("id, payment_cycle_name");
         const { data: met } = await supabase
-          .from("payment_methods_ordered")
+          .from("payment_methods")
           .select("id, payment_method_name");
         setCategories(cat || []);
         setPaymentCycles(cyc || []);

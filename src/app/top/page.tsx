@@ -32,7 +32,6 @@ export default function TopPage() {
         <div className="mt-5 mb-30">
           <div className="flex flex-col items-center">
             <div className="sm:w-2/3 w-full">
-              {/* 今月の合計金額 */}
               {/* 今月の合計金額*/}
               <TooltipProvider>
                 <Tooltip>
@@ -96,7 +95,7 @@ export default function TopPage() {
                         </div>
                       </Card>
                     </TooltipTrigger>
-                    {/* ✅ Radix風にサイズ・配色を調整 */}
+
                     <TooltipContent
                       side="bottom"
                       align="center"

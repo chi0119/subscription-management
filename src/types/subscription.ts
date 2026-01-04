@@ -42,3 +42,11 @@ export interface SubscriptionData {
   paymentMethod: string;
   notes: string;
 }
+
+export interface CategoryUI {
+  id: string;
+  user_id: string;
+  category_name: string;
+  name: string;
+  deleted?: boolean;
+}

@@ -125,7 +125,8 @@ export default function SubscriptionsPage() {
       try {
         const { data: cat } = await supabase
           .from("categories")
-          .select("id, category_name, user_id");
+          .select("id, category_name, user_id")
+          .is("deleted_at", null);
         const { data: cyc } = await supabase
           .from("payment_cycles")
           .select("id, payment_cycle_name");
