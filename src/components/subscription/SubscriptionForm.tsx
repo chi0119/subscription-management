@@ -92,8 +92,21 @@ export const SubscriptionForm = ({
       toast.error("サブスク名を入力してください");
       return;
     }
-    if (!formData.category_id) {
-      toast.error("カテゴリーを選択してください");
+    // カテゴリーの存在チェック
+    const categoryExists = categories.some(
+      (cat) => cat.id.toString() === formData.category_id
+    );
+
+    if (!formData.category_id || !categoryExists) {
+      toast.error(
+        <div className="flex flex-col">
+          <span>カテゴリーを選択してください</span>
+          <span className="text-[11px] font-normal leading-tight mt-1 opacity-90">
+            ※以前のカテゴリーは削除されています
+          </span>
+        </div>
+      );
+      setFormData((prev) => ({ ...prev, category_id: "" }));
       return;
     }
     if (!amount || amount === "0") {

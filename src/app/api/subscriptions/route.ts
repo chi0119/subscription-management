@@ -55,7 +55,7 @@ export async function POST(req: Request) {
     amount: numericAmount,
     contract_date: contract_date || null,
     payment_cycle_id: payment_cycle_id ? Number(payment_cycle_id) : null,
-    payment_date: payment_date || null,
+    payment_date: payment_date ? Number(payment_date) : null,
     payment_method_id: payment_method_id ? Number(payment_method_id) : null,
     notes: notes || null,
     user_id: userId,

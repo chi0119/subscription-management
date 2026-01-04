@@ -8,18 +8,16 @@ const prisma = new PrismaClient();
 // カテゴリー 一覧取得
 export async function GET() {
   const session = await getServerSession(authOptions);
-  // 確認用
-  // console.log("セッション情報:", session);
 
   if (!session?.user?.id) {
-    // 確認用
-    // console.error("セッションに user.id がありません");
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const categories = await prisma.categories.findMany({
-    where: { user_id: BigInt(session.user.id) },
-    orderBy: { id: "asc" },
+    where: {
+      user_id: BigInt(session.user.id),
+      deleted_at: null,
+    },
   });
 
   const safeCategories = categories.map((C) => ({
@@ -34,8 +32,6 @@ export async function GET() {
 // カテゴリー 更新
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
-  // 確認用
-  // console.log("セッション情報:", session);
 
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -44,29 +40,43 @@ export async function POST(req: Request) {
   try {
     const { categories } = await req.json();
     const userId = BigInt(session.user.id);
-    // 確認用
-    // console.log("userId:", userId);
-    // console.log("categories:", categories);
 
-    // カテゴリー 削除
-    await prisma.categories.deleteMany({ where: { user_id: userId } });
+    // カテゴリー 登録・更新・削除処理
+    for (const cat of categories) {
+      const userId = BigInt(session.user.id);
 
-    // カテゴリー 新規登録
-    for (const name of categories) {
-      if (name.trim() !== "") {
+      // 削除
+      if (cat.id && cat.deleted) {
+        await prisma.categories.update({
+          where: { id: BigInt(cat.id) },
+          data: { deleted_at: new Date() },
+        });
+        continue;
+      }
+
+      // 新規登録
+      if (!cat.id || cat.id === "") {
+        if (!cat.category_name || cat.category_name.trim() === "") continue;
         await prisma.categories.create({
           data: {
-            category_name: name,
+            category_name: cat.category_name,
             user_id: userId,
           },
         });
+        continue;
       }
-    }
 
+      // 通常更新
+      await prisma.categories.update({
+        where: { id: BigInt(cat.id) },
+        data: {
+          category_name: cat.category_name,
+          deleted_at: null,
+        },
+      });
+    }
     return NextResponse.json({ success: true });
   } catch (error) {
-    // 確認用
-    // console.error("DBエラー:", error);
     return NextResponse.json(
       { error: "DB Error", details: String(error) },
       { status: 500 }
