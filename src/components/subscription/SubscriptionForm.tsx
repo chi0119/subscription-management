@@ -441,7 +441,7 @@ export const SubscriptionForm = ({
           open={isDuplicateDialogOpen}
           onOpenChange={setIsDuplicateDialogOpen}
         >
-          <AlertDialogContent>
+          <AlertDialogContent className="w-full max-w-md sm:max-w-lg mx-auto">
             <AlertDialogHeader className="mb-4">
               <AlertDialogTitle className="text-center text-base font-normal text-gray-600">
                 「{formData.subscription_name}」は既に登録されています
@@ -451,7 +451,8 @@ export const SubscriptionForm = ({
                 </span>
               </AlertDialogTitle>
             </AlertDialogHeader>
-            <AlertDialogFooter className="flex justify-center gap-3 sm:justify-center">
+
+            <AlertDialogFooter className="flex justify-center gap-3 sm:justify-center flex-row ">
               <AlertDialogAction
                 onClick={handleProceedFromDuplicate}
                 className="bg-emerald-500 hover:bg-emerald-600"
@@ -468,7 +469,7 @@ export const SubscriptionForm = ({
           open={isConfirmDialogOpen}
           onOpenChange={setIsConfirmDialogOpen}
         >
-          <AlertDialogContent>
+          <AlertDialogContent className="w-full max-w-md sm:max-w-lg mx-auto">
             <AlertDialogHeader className="mb-4">
               <AlertDialogTitle className="text-center text-base font-normal text-gray-600">
                 この内容を登録します
@@ -476,7 +477,7 @@ export const SubscriptionForm = ({
                 よろしいでしょうか
               </AlertDialogTitle>
             </AlertDialogHeader>
-            <AlertDialogFooter className="flex justify-center gap-3 sm:justify-center">
+            <AlertDialogFooter className="flex justify-center gap-3 sm:justify-center flex-row ">
               <AlertDialogAction
                 onClick={handleRegister}
                 className="bg-emerald-500 hover:bg-emerald-600"
@@ -490,13 +491,13 @@ export const SubscriptionForm = ({
 
         {/* 完了ダイアログ */}
         <AlertDialog open={isDoneDialogOpen} onOpenChange={setIsDoneDialogOpen}>
-          <AlertDialogContent>
+          <AlertDialogContent className="w-full max-w-md sm:max-w-lg mx-auto">
             <AlertDialogHeader className="mb-4">
               <AlertDialogTitle className="text-center text-base font-normal text-gray-600">
                 登録が完了しました
               </AlertDialogTitle>
             </AlertDialogHeader>
-            <AlertDialogFooter className="flex justify-center gap-3 sm:justify-center">
+            <AlertDialogFooter className="flex justify-center gap-3 sm:justify-center flex-row ">
               <Button
                 onClick={handleGoToList}
                 className="bg-emerald-500 hover:bg-emerald-600"

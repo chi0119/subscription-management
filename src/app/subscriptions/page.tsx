@@ -684,7 +684,7 @@ export default function SubscriptionsPage() {
           if (!open) setDeletingId(null);
         }}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className="w-full max-w-md sm:max-w-lg mx-auto">
           <AlertDialogHeader className="mb-4">
             <AlertDialogTitle className="text-center text-base font-normal text-gray-600">
               登録内容を削除します
@@ -692,7 +692,7 @@ export default function SubscriptionsPage() {
               よろしいでしょうか
             </AlertDialogTitle>
           </AlertDialogHeader>
-          <AlertDialogFooter className="flex justify-center gap-3 sm:justify-center">
+          <AlertDialogFooter className="flex justify-center gap-3 sm:justify-center flex-row ">
             <AlertDialogAction
               onClick={handleDelete}
               className="bg-emerald-500 hover:bg-emerald-600"
