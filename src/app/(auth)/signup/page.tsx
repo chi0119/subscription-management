@@ -1,5 +1,3 @@
-// 新規登録ページ
-
 "use client";
 
 import { useState } from "react";
@@ -111,7 +109,7 @@ export default function SignUpPage() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-start bg-gray-50 pt-20 px-4">
-      <Card className="w-full max-w-md rounded-md shadow-xs">
+      <Card className="w-full max-w-md rounded-md shadow-sm">
         <CardHeader>
           <CardTitle className="text-center text-2xl font-bold text-gray-600">
             新規登録
