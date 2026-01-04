@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 
 import ConditionalHeader from "@/components/conditional-header";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
+import { NextAuthProvider } from "@/components/providers/NextAuthProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,21 +22,23 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className={inter.className}>
-        {/* グローバルにProviderを適用 */}
-        <SubscriptionProvider>
-          {/* 全ページ共通ヘッダー */}
-          <ConditionalHeader />
+        <NextAuthProvider>
+          {/* グローバルにProviderを適用 */}
+          <SubscriptionProvider>
+            {/* 全ページ共通ヘッダー */}
+            <ConditionalHeader />
 
-          {/* メインコンテンツ */}
-          <main className="container mx-auto px-4 py-8 min-h-screen">
-            {children}
-          </main>
+            {/* メインコンテンツ */}
+            <main className="container mx-auto px-4 py-8 min-h-screen">
+              {children}
+            </main>
 
-          {/* トースト通知 */}
-          <Toaster position="top-center" />
+            {/* トースト通知 */}
+            <Toaster position="top-center" />
 
-          {/* Footerなどを後で追加 */}
-        </SubscriptionProvider>
+            {/* Footerなどを後で追加 */}
+          </SubscriptionProvider>
+        </NextAuthProvider>
       </body>
     </html>
   );

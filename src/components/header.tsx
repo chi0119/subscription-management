@@ -45,10 +45,11 @@ const Header = () => {
     setIsMenuOpen(false);
 
     await signOut({
-      callbackUrl: "/signin",
+      redirect: false,
     });
 
     toast.success("ログアウトしました");
+    window.location.href = "/signin";
   };
 
   // ログインページはナビを非表示

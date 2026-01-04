@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { toast } from "sonner";
+import { useSession } from "next-auth/react";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -22,17 +23,28 @@ export const SubscriptionProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
+  const { data: session } = useSession();
   const [averageMonthlyAmount, setAverageMonthlyAmount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
   // 月の平均金額を計算
   const fetchAverage = async () => {
+    if (!session?.user?.id) {
+      setAverageMonthlyAmount(0);
+      setIsLoading(false);
+      return;
+    }
     try {
       setIsLoading(true);
-      const { data, error } = await supabase.from("subscriptions").select(`
+      const { data, error } = await supabase
+        .from("subscriptions")
+        .select(
+          `
           amount,
           payment_cycles(payment_cycle_name)
-        `);
+        `
+        )
+        .eq("user_id", session.user.id);
 
       if (error) throw error;
 
@@ -60,25 +72,35 @@ export const SubscriptionProvider = ({
   };
 
   useEffect(() => {
-    fetchAverage();
+    if (session?.user?.id) {
+      fetchAverage();
 
-    // 最新データを反映
-    const subscription = supabase
-      .channel("realtime:subscriptions")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "subscriptions" },
-        () => {
-          fetchAverage();
-        }
-      )
-      .subscribe();
+      // 最新データを反映
+      const subscription = supabase
+        .channel(`realtime:subscriptions:${session.user.id}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "subscriptions",
+            filter: `user_id=eq.${session.user.id}`,
+          },
+          () => {
+            fetchAverage();
+          }
+        )
+        .subscribe();
 
-    // クリーンアップ
-    return () => {
-      supabase.removeChannel(subscription);
-    };
-  }, []);
+      // クリーンアップ
+      return () => {
+        supabase.removeChannel(subscription);
+      };
+    } else {
+      setAverageMonthlyAmount(0);
+      setIsLoading(false);
+    }
+  }, [session?.user?.id]);
 
   return (
     <SubscriptionContext.Provider

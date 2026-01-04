@@ -8,7 +8,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function SignInPage() {
@@ -17,7 +17,9 @@ export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loadingForm, setLoadingForm] = useState(false);
-  const [error, setError] = useState("");
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [isError, setIsError] = useState(false);
 
   useEffect(() => {
     const message = searchParams.get("message");
@@ -31,13 +33,14 @@ export default function SignInPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoadingForm(true);
-    setError("");
 
     if (!email || !password) {
-      setError("メールアドレスとパスワードを入力してください");
+      setIsError(true);
+      toast.error("メールアドレスとパスワードを入力してください");
       setLoadingForm(false);
       return;
     }
+    setIsError(false);
 
     const result = await signIn("credentials", {
       redirect: false,
@@ -46,19 +49,25 @@ export default function SignInPage() {
     });
 
     if (result?.error) {
-      setError("メールアドレスまたはパスワードが違います");
+      toast.error("メールアドレスまたはパスワードが違います");
       setLoadingForm(false);
     } else {
       router.push("/top");
     }
   };
 
-  // 全ページ共通のフォーカススタイル
-  const unifiedFocusWrapper =
-    "border border-gray-300 focus-within:border-blue-400 rounded-md shadow-sm";
+  const baseContainer =
+    "border rounded-md shadow-sm transition-all duration-200";
+  const getContainerClass = (hasError: boolean) => {
+    return `${baseContainer} w-full ${
+      hasError
+        ? "border-red-400 ring-1 ring-red-400 bg-red-50"
+        : "border-gray-300 focus-within:border-blue-400 focus-within:ring-0 bg-white"
+    }`;
+  };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-start pt-20 px-4">
+    <div className="flex min-h-screen flex-col items-center justify-start bg-gray-50 pt-20 px-4">
       <style jsx>{`
         input:-webkit-autofill,
         input:-webkit-autofill:hover,
@@ -77,13 +86,7 @@ export default function SignInPage() {
         </CardHeader>
 
         <CardContent>
-          {error && (
-            <div className="mb-4 rounded-md border border-red-300 bg-red-50 p-2 text-center text-sm text-red-600">
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} noValidate className="space-y-5">
             {/* メールアドレス */}
             <div>
               <label
@@ -93,7 +96,7 @@ export default function SignInPage() {
                 メールアドレス
               </label>
 
-              <div className={`w-full ${unifiedFocusWrapper}`}>
+              <div className={getContainerClass(isError && !email)}>
                 <Input
                   id="email"
                   type="email"
@@ -114,15 +117,26 @@ export default function SignInPage() {
                 パスワード
               </label>
 
-              <div className={`w-full ${unifiedFocusWrapper}`}>
+              <div
+                className={`relative ${getContainerClass(
+                  isError && !password
+                )}`}
+              >
                 <Input
                   id="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="パスワードを入力"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="border-none shadow-none focus-visible:ring-0 focus-visible:outline-none h-10 bg-transparent"
+                  className="border-none shadow-none focus-visible:ring-0 focus-visible:outline-none h-10 bg-transparent pr-10"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
               </div>
             </div>
 

@@ -2,6 +2,7 @@
 
 "use client";
 
+import { useSession } from "next-auth/react";
 import { SubscriptionForm } from "@/components/subscription/SubscriptionForm";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -61,6 +62,7 @@ const supabase = createClient(
 );
 
 export default function SubscriptionsPage() {
+  const { data: session } = useSession();
   const { averageMonthlyAmount, refreshAverage } = useSubscription();
 
   // 一覧を取得
@@ -69,6 +71,7 @@ export default function SubscriptionsPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchSubscriptions = async () => {
+    if (!session?.user?.id) return;
     try {
       setIsLoading(true);
       const { data, error } = await supabase
@@ -81,6 +84,7 @@ export default function SubscriptionsPage() {
           payment_methods(payment_method_name)
         `
         )
+        .eq("user_id", session.user.id)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -121,30 +125,35 @@ export default function SubscriptionsPage() {
   // マスターデータを取得
   useEffect(() => {
     const fetchMasters = async () => {
+      if (!session?.user?.id) return;
       setIsLoading(true);
       try {
-        const { data: cat } = await supabase
-          .from("categories")
-          .select("id, category_name, user_id")
-          .is("deleted_at", null);
-        const { data: cyc } = await supabase
-          .from("payment_cycles")
-          .select("id, payment_cycle_name");
-        const { data: met } = await supabase
-          .from("payment_methods")
-          .select("id, payment_method_name");
+        const [catRes, cycRes, metRes] = await Promise.all([
+          supabase
+            .from("categories")
+            .select("id, category_name, user_id")
+            .eq("user_id", session?.user?.id)
+            .is("deleted_at", null),
+          supabase.from("payment_cycles").select("id, payment_cycle_name"),
+          supabase.from("payment_methods").select("id, payment_method_name"),
+        ]);
 
-        if (cat) setCategories(cat as Category[]);
-        if (cyc) setPaymentCycles(cyc as PaymentCycle[]);
-        if (met) setPaymentMethods(met as PaymentMethod[]);
+        if (catRes.data) setCategories(catRes.data as Category[]);
+        if (cycRes.data) setPaymentCycles(cycRes.data as PaymentCycle[]);
+        if (metRes.data) setPaymentMethods(metRes.data as PaymentMethod[]);
 
         await fetchSubscriptions();
+      } catch (error) {
+        console.error("マスターデータ取得エラー:", error);
+        toast.error("データの初期化に失敗しました");
       } finally {
         setIsLoading(false);
       }
     };
-    fetchMasters();
-  }, []);
+    if (session?.user?.id) {
+      fetchMasters();
+    }
+  }, [session?.user?.id]);
 
   const handleSelectChange = (value: string) => {
     if (value === "reset") {
@@ -266,23 +275,6 @@ export default function SubscriptionsPage() {
             </Card>
           </div>
 
-          {/* 表示切替 */}
-          <div className="sm:w-2/3 w-full mx-auto mb-2">
-            <div className="hidden lg:flex items-center justify-start gap-2 mt-7">
-              <Label htmlFor="display-select">表示切替：</Label>
-              <Select value={displayFilter} onValueChange={handleSelectChange}>
-                <SelectTrigger id="display-select" className="w-48">
-                  <SelectValue placeholder="選択してください" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="reset">--選択クリア--</SelectItem>
-                  <SelectItem value="category">カテゴリ別</SelectItem>
-                  <SelectItem value="price">金額別</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
           <div className="w-full mx-auto mt-3">
             {isLoading ? (
               // 読み込み中の表示
@@ -306,6 +298,25 @@ export default function SubscriptionsPage() {
               </div>
             ) : subscriptions.length > 0 ? (
               <>
+                {/* 表示切替 */}
+                <div className="sm:w-2/3 w-full mx-auto mb-2">
+                  <div className="hidden lg:flex items-center justify-start gap-2 mt-7">
+                    <Label htmlFor="display-select">表示切替：</Label>
+                    <Select
+                      value={displayFilter}
+                      onValueChange={handleSelectChange}
+                    >
+                      <SelectTrigger id="display-select" className="w-48">
+                        <SelectValue placeholder="選択してください" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="reset">--選択クリア--</SelectItem>
+                        <SelectItem value="category">カテゴリ別</SelectItem>
+                        <SelectItem value="price">金額別</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
                 {/* サブスク一覧 テーブル 1024px以上 */}
                 <div className="sm:w-2/3 w-full mx-auto mt-3 hidden lg:block">
                   <Table className="text-sm leading-tight table-fixed">
