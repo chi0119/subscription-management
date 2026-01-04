@@ -74,9 +74,18 @@ export const SubscriptionForm = ({
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [isDuplicateDialogOpen, setIsDuplicateDialogOpen] = useState(false);
   const [isDoneDialogOpen, setIsDoneDialogOpen] = useState(false);
+  const [isError, setIsError] = useState(false);
 
-  const unifiedFocus =
-    "border border-gray-300 focus-within:border-blue-400 rounded-md shadow-sm";
+  const baseContainer =
+    "border rounded-md shadow-sm transition-all duration-200";
+
+  const getContainerClass = (hasError: boolean) => {
+    return `${baseContainer} w-full sm:max-w-sm ${
+      hasError
+        ? "border-red-400 ring-1 ring-red-400 bg-red-50"
+        : "border-gray-300 focus-within:border-blue-400 focus-within:ring-0 bg-white"
+    }`;
+  };
 
   // 金額カンマ区切り
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -89,15 +98,19 @@ export const SubscriptionForm = ({
   const handleRegisterClick = async () => {
     // バリデーション
     if (!formData.subscription_name.trim()) {
+      setIsError(true);
       toast.error("サブスク名を入力してください");
       return;
     }
+    setIsError(false);
+
     // カテゴリーの存在チェック
     const categoryExists = categories.some(
       (cat) => cat.id.toString() === formData.category_id
     );
 
     if (!formData.category_id || !categoryExists) {
+      setIsError(true);
       toast.error(
         <div className="flex flex-col">
           <span>カテゴリーを選択してください</span>
@@ -109,26 +122,42 @@ export const SubscriptionForm = ({
       setFormData((prev) => ({ ...prev, category_id: "" }));
       return;
     }
+    setIsError(false);
+
     if (!amount || amount === "0") {
+      setIsError(true);
       toast.error("金額を入力してください");
       return;
     }
+    setIsError(false);
+
     if (!formData.contract_date) {
+      setIsError(true);
       toast.error("契約日を選択してください");
       return;
     }
+    setIsError(false);
+
     if (!formData.payment_cycle_id) {
+      setIsError(true);
       toast.error("支払いサイクルを選択してください");
       return;
     }
+    setIsError(false);
+
     if (!formData.payment_date) {
+      setIsError(true);
       toast.error("支払日を選択してください");
       return;
     }
+    setIsError(false);
+
     if (!formData.payment_method_id) {
+      setIsError(true);
       toast.error("支払い方法を選択してください");
       return;
     }
+    setIsError(false);
 
     // 重複チェック
     try {
@@ -230,7 +259,9 @@ export const SubscriptionForm = ({
           サブスク名
         </Label>
         <div
-          className={`rounded-md shadow-sm w-full sm:max-w-sm ${unifiedFocus}`}
+          className={getContainerClass(
+            isError && !formData.subscription_name.trim()
+          )}
         >
           <Input
             id="subscription_name"
@@ -239,6 +270,7 @@ export const SubscriptionForm = ({
             onChange={(e) =>
               setFormData({ ...formData, subscription_name: e.target.value })
             }
+            aria-invalid={isError && formData.subscription_name.trim() === ""}
             className="border-none shadow-none focus-visible:ring-0 focus-visible:outline-none bg-transparent"
           />
         </div>
@@ -252,16 +284,14 @@ export const SubscriptionForm = ({
         >
           カテゴリー
         </Label>
-        <div
-          className={`rounded-md shadow-sm w-full sm:max-w-sm ${unifiedFocus}`}
-        >
+        <div className={getContainerClass(isError && !formData.category_id)}>
           <Select
             value={formData.category_id}
             onValueChange={(value) =>
               setFormData({ ...formData, category_id: value })
             }
           >
-            <SelectTrigger className="w-full h-10 border-none shadow-none focus:ring-0 focus:outline-none">
+            <SelectTrigger className="w-full h-10 border-none shadow-none bg-transparent focus:ring-0 focus:ring-offset-0 focus:outline-none data-placeholder:text-muted-foreground">
               <SelectValue placeholder="選択してください" />
             </SelectTrigger>
             <SelectContent>
@@ -284,14 +314,17 @@ export const SubscriptionForm = ({
           金額
         </Label>
         <div
-          className={`flex items-center w-full sm:max-w-sm rounded-md shadow-sm ${unifiedFocus} h-10`}
+          className={`flex items-center h-10 ${getContainerClass(
+            isError && (!amount || amount === "0")
+          )}`}
         >
           <Input
             id="amount"
             value={amount}
             onChange={handleAmountChange}
             placeholder="0"
-            className="text-right border-none shadow-none focus-visible:ring-0 focus-visible:outline-none h-full bg-transparent"
+            // ring-0 と focus-visible:ring-0 を両方入れて内側の線を消去
+            className="text-right border-none shadow-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none h-full bg-transparent"
           />
           <span className="inline-flex items-center justify-center px-3 text-gray-600 sm:text-sm h-full">
             円
@@ -307,9 +340,7 @@ export const SubscriptionForm = ({
         >
           契約日
         </Label>
-        <div
-          className={`rounded-md shadow-sm w-full sm:max-w-sm ${unifiedFocus}`}
-        >
+        <div className={getContainerClass(isError && !formData.contract_date)}>
           <Input
             type="date"
             id="contract_date"
@@ -318,6 +349,7 @@ export const SubscriptionForm = ({
               setFormData({ ...formData, contract_date: e.target.value })
             }
             className="border-none shadow-none focus-visible:ring-0 focus-visible:outline-none bg-transparent"
+            aria-invalid={isError && !formData.contract_date}
           />
         </div>
       </div>
@@ -331,7 +363,7 @@ export const SubscriptionForm = ({
           支払いサイクル
         </Label>
         <div
-          className={`rounded-md shadow-sm w-full sm:max-w-sm ${unifiedFocus}`}
+          className={getContainerClass(isError && !formData.payment_cycle_id)}
         >
           <Select
             value={formData.payment_cycle_id}
@@ -339,7 +371,7 @@ export const SubscriptionForm = ({
               setFormData({ ...formData, payment_cycle_id: value })
             }
           >
-            <SelectTrigger className="w-full h-10 border-none shadow-none focus:ring-0 focus:outline-none">
+            <SelectTrigger className="w-full h-10 border-none shadow-none bg-transparent focus:ring-0 focus:ring-offset-0 focus:outline-none data-placeholder:text-muted-foreground">
               <SelectValue placeholder="選択してください" />
             </SelectTrigger>
             <SelectContent>
@@ -361,16 +393,14 @@ export const SubscriptionForm = ({
         >
           支払日
         </Label>
-        <div
-          className={`rounded-md shadow-sm w-full sm:max-w-sm ${unifiedFocus}`}
-        >
+        <div className={getContainerClass(isError && !formData.payment_date)}>
           <Select
             value={formData.payment_date}
             onValueChange={(value) =>
               setFormData({ ...formData, payment_date: value })
             }
           >
-            <SelectTrigger className="w-full h-10 border-none shadow-none focus:ring-0 focus:outline-none">
+            <SelectTrigger className="w-full h-10 border-none shadow-none bg-transparent focus:ring-0 focus:ring-offset-0 focus:outline-none data-placeholder:text-muted-foreground">
               <SelectValue placeholder="選択してください" />
             </SelectTrigger>
             <SelectContent>
@@ -393,7 +423,7 @@ export const SubscriptionForm = ({
           支払い方法
         </Label>
         <div
-          className={`rounded-md shadow-sm w-full sm:max-w-sm ${unifiedFocus}`}
+          className={getContainerClass(isError && !formData.payment_method_id)}
         >
           <Select
             value={formData.payment_method_id}
@@ -401,7 +431,7 @@ export const SubscriptionForm = ({
               setFormData({ ...formData, payment_method_id: value })
             }
           >
-            <SelectTrigger className="w-full h-10 border-none shadow-none focus:ring-0 focus:outline-none">
+            <SelectTrigger className="w-full h-10 border-none shadow-none bg-transparent focus:ring-0 focus:ring-offset-0 focus:outline-none data-placeholder:text-muted-foreground">
               <SelectValue placeholder="選択してください" />
             </SelectTrigger>
             <SelectContent>
@@ -423,9 +453,7 @@ export const SubscriptionForm = ({
         >
           備考
         </Label>
-        <div
-          className={`rounded-md shadow-sm w-full sm:max-w-sm ${unifiedFocus}`}
-        >
+        <div className={getContainerClass(false)}>
           <Textarea
             id="notes"
             value={formData.notes}

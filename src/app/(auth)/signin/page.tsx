@@ -1,4 +1,3 @@
-// ログインページ
 "use client";
 
 import { useEffect, useState } from "react";
@@ -19,6 +18,7 @@ export default function SignInPage() {
   const [loadingForm, setLoadingForm] = useState(false);
 
   const [showPassword, setShowPassword] = useState(false);
+  const [isError, setIsError] = useState(false);
 
   useEffect(() => {
     const message = searchParams.get("message");
@@ -34,10 +34,12 @@ export default function SignInPage() {
     setLoadingForm(true);
 
     if (!email || !password) {
+      setIsError(true);
       toast.error("メールアドレスとパスワードを入力してください");
       setLoadingForm(false);
       return;
     }
+    setIsError(false);
 
     const result = await signIn("credentials", {
       redirect: false,
@@ -53,9 +55,15 @@ export default function SignInPage() {
     }
   };
 
-  // 全ページ共通のフォーカススタイル
-  const unifiedFocusWrapper =
-    "border border-gray-300 focus-within:border-blue-200 focus-within:ring-1 focus-within:ring-blue-400 rounded-md shadow-sm";
+  const baseContainer =
+    "border rounded-md shadow-sm transition-all duration-200";
+  const getContainerClass = (hasError: boolean) => {
+    return `${baseContainer} w-full ${
+      hasError
+        ? "border-red-400 ring-1 ring-red-400 bg-red-50"
+        : "border-gray-300 focus-within:border-blue-400 focus-within:ring-0 bg-white"
+    }`;
+  };
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-start bg-gray-50 pt-20 px-4">
@@ -87,7 +95,7 @@ export default function SignInPage() {
                 メールアドレス
               </label>
 
-              <div className={`w-full ${unifiedFocusWrapper}`}>
+              <div className={getContainerClass(isError && !email)}>
                 <Input
                   id="email"
                   type="email"
@@ -108,7 +116,11 @@ export default function SignInPage() {
                 パスワード
               </label>
 
-              <div className={`w-full relative ${unifiedFocusWrapper}`}>
+              <div
+                className={`relative ${getContainerClass(
+                  isError && !password
+                )}`}
+              >
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}

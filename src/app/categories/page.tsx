@@ -6,7 +6,6 @@ import { Plus, Trash2 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/page-header";
@@ -15,8 +14,8 @@ import { CategoryUI } from "@/types/subscription";
 const CategoriesPage = () => {
   const [categories, setCategories] = useState<CategoryUI[]>([]);
 
-  const [showPopup, setShowPopup] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
 
   // カテゴリーを取得
   useEffect(() => {
@@ -44,26 +43,27 @@ const CategoriesPage = () => {
     fetchCategories();
   }, []);
 
-  // カテゴリーを追加
+  // 追加
   const handleAddCategory = () => {
     const hasEmpty = categories.some((c) => c.name.trim() === "");
     if (hasEmpty) {
-      setShowPopup(true);
+      setIsError(true);
+
+      toast.error(
+        <div>
+          <div className="font-bold">カテゴリーが空欄です</div>
+          <div className="text-xs opacity-90">入力してください</div>
+        </div>
+      );
       return;
     }
+    setIsError(false);
+
     setCategories((prev) => [
       { id: "", category_name: "", user_id: "", name: "", deleted: false },
       ...prev,
     ]);
   };
-
-  // 3秒後にポップアップ削除
-  useEffect(() => {
-    if (showPopup) {
-      const timer = setTimeout(() => setShowPopup(false), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [showPopup]);
 
   // カテゴリーを削除
   const handleDeleteCategory = (index: number) => {
@@ -90,6 +90,19 @@ const CategoriesPage = () => {
 
   // 更新
   const handleUpdateCategories = async () => {
+    const hasEmpty = categories.some((c) => !c.deleted && c.name.trim() === "");
+    if (hasEmpty) {
+      setIsError(true);
+      toast.error(
+        <div>
+          <div className="font-bold">カテゴリーが空欄です</div>
+          <div className="text-xs opacity-90">入力してください</div>
+        </div>
+      );
+      return;
+    }
+    setIsError(false);
+
     try {
       const res = await fetch("/api/categories", {
         method: "POST",
@@ -125,13 +138,15 @@ const CategoriesPage = () => {
       toast.success("更新に失敗しました", { duration: 1000 });
     }
   };
+
   // 表示
-  const leftCategories = categories.slice(0, 5);
-  const rightCategories = categories.slice(5);
+  const activeCategories = categories.filter((c) => !c.deleted);
+  const leftCategories = activeCategories.slice(0, 5);
+  const rightCategories = activeCategories.slice(5);
 
   // 共通フォーカススタイル
   const unifiedFocus =
-    "border border-gray-300 focus-within:border-blue-200 focus-within:ring-1 focus-within:ring-blue-400 rounded-md shadow-sm";
+    "border border-gray-300 focus-within:border-blue-400 rounded-md shadow-sm transition-all";
 
   // ローディング中の表示
   if (loading) {
@@ -168,17 +183,6 @@ const CategoriesPage = () => {
           description="サブスクを分類するカテゴリーを追加・削除して管理できます"
         />
 
-        {/* ポップアップ */}
-        {showPopup && (
-          <div className="absolute inset-x-0 top-36 flex justify-center z-50">
-            <Alert variant="destructive" className="w-fit shadow-lg">
-              <AlertDescription>
-                カテゴリーが空欄です。入力してください。
-              </AlertDescription>
-            </Alert>
-          </div>
-        )}
-
         {/* カテゴリー 入力欄 削除ボタン */}
         <div className="flex flex-col items-center gap-2">
           <div className="w-full sm:w-2/3 flex justify-start">
@@ -206,13 +210,23 @@ const CategoriesPage = () => {
                     key={category.id || index}
                     className="flex items-center gap-3"
                   >
-                    <Input
-                      value={category.name}
-                      onChange={(e) =>
-                        handleChangeCategory(globalIndex, e.target.value)
-                      }
-                      placeholder="入力してください"
-                    />
+                    <div
+                      className={`w-full overflow-hidden ${unifiedFocus} ${
+                        isError && category.name.trim() === ""
+                          ? "border-red-400 focus-within:border-red-500 ring-1 ring-red-400"
+                          : ""
+                      }`}
+                    >
+                      <Input
+                        value={category.name}
+                        onChange={(e) =>
+                          handleChangeCategory(globalIndex, e.target.value)
+                        }
+                        placeholder="入力してください"
+                        aria-invalid={isError && category.name.trim() === ""}
+                        className="border-none shadow-none focus-visible:ring-0 focus-visible:outline-none bg-transparent"
+                      />
+                    </div>
                     <Button
                       type="button"
                       variant="ghost"
@@ -235,13 +249,23 @@ const CategoriesPage = () => {
                 );
                 return (
                   <div key={category.id} className="flex items-center gap-3">
-                    <Input
-                      value={category.name}
-                      onChange={(e) =>
-                        handleChangeCategory(globalIndex, e.target.value)
-                      }
-                      placeholder="入力してください"
-                    />
+                    <div
+                      className={`w-full overflow-hidden ${unifiedFocus} ${
+                        isError && category.name.trim() === ""
+                          ? "border-red-400 focus-within:border-red-500 ring-1 ring-red-400"
+                          : ""
+                      }`}
+                    >
+                      <Input
+                        value={category.name}
+                        onChange={(e) =>
+                          handleChangeCategory(globalIndex, e.target.value)
+                        }
+                        placeholder="入力してください"
+                        aria-invalid={isError && category.name.trim() === ""}
+                        className="border-none shadow-none focus-visible:ring-0 focus-visible:outline-none bg-transparent"
+                      />
+                    </div>
                     <Button
                       type="button"
                       variant="ghost"

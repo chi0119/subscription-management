@@ -1,5 +1,3 @@
-// 新規登録ページ
-
 "use client";
 
 import { useState } from "react";
@@ -22,36 +20,50 @@ export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  const [isError, setIsError] = useState(false);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsError(false);
     setLoadingForm(true);
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+
+    // 全項目入力チェック
     if (
       !username.trim() ||
       !email.trim() ||
       !password.trim() ||
       !confirmPassword.trim()
     ) {
+      setIsError(true);
       toast.error("すべての項目を入力してください");
       setLoadingForm(false);
       return;
     }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    // メール形式チェック
     if (!emailRegex.test(email)) {
+      setIsError(true);
       toast.error("有効なメールアドレスを入力してください");
       setLoadingForm(false);
       return;
     }
 
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    // パスワード強度チェック
     if (!passwordRegex.test(password)) {
+      setIsError(true);
       toast.error(
         "英字と数字をそれぞれ1文字以上含む（8文字以上）で入力してください"
       );
       setLoadingForm(false);
       return;
     }
+
+    // パスワード一致チェック
     if (password !== confirmPassword) {
+      setIsError(true);
       toast.error("パスワードが一致しません");
       setLoadingForm(false);
       return;
@@ -85,13 +97,19 @@ export default function SignUpPage() {
     setLoadingForm(false);
   };
 
-  // 共通のフォーカススタイル
-  const unifiedFocusWrapper =
-    "border border-gray-300 focus-within:border-blue-200 focus-within:ring-1 focus-within:ring-blue-400 rounded-md shadow-sm";
+  const baseContainer =
+    "border rounded-md shadow-sm transition-all duration-200";
+  const getContainerClass = (hasError: boolean) => {
+    return `${baseContainer} w-full ${
+      hasError
+        ? "border-red-400 ring-1 ring-red-400 bg-red-50"
+        : "border-gray-300 focus-within:border-blue-400 focus-within:ring-0 bg-white"
+    }`;
+  };
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-start bg-gray-50 pt-20 px-4">
-      <Card className="w-full max-w-md rounded-md shadow-xs">
+      <Card className="w-full max-w-md rounded-md shadow-sm">
         <CardHeader>
           <CardTitle className="text-center text-2xl font-bold text-gray-600">
             新規登録
@@ -108,7 +126,7 @@ export default function SignUpPage() {
               >
                 ユーザー名
               </label>
-              <div className={`w-full ${unifiedFocusWrapper}`}>
+              <div className={getContainerClass(isError && !username.trim())}>
                 <Input
                   id="username"
                   type="text"
@@ -128,7 +146,12 @@ export default function SignUpPage() {
               >
                 メールアドレス
               </label>
-              <div className={`w-full ${unifiedFocusWrapper}`}>
+              <div
+                className={getContainerClass(
+                  isError &&
+                    (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+                )}
+              >
                 <Input
                   id="email"
                   type="email"
@@ -148,7 +171,13 @@ export default function SignUpPage() {
               >
                 パスワード
               </label>
-              <div className={`w-full relative ${unifiedFocusWrapper}`}>
+              <div
+                className={`relative ${getContainerClass(
+                  isError &&
+                    (!password.trim() ||
+                      !/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(password))
+                )}`}
+              >
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
@@ -175,7 +204,12 @@ export default function SignUpPage() {
               >
                 パスワード確認
               </label>
-              <div className={`w-full relative ${unifiedFocusWrapper}`}>
+              <div
+                className={`relative ${getContainerClass(
+                  isError &&
+                    (!confirmPassword.trim() || password !== confirmPassword)
+                )}`}
+              >
                 <Input
                   id="confirmPassword"
                   type={showConfirmPassword ? "text" : "password"}
