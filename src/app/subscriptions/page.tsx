@@ -134,7 +134,10 @@ export default function SubscriptionsPage() {
             .select("id, category_name, user_id")
             .eq("user_id", session?.user?.id)
             .is("deleted_at", null),
-          supabase.from("payment_cycles").select("id, payment_cycle_name"),
+          supabase
+            .from("payment_cycles")
+            .select("id, payment_cycle_name")
+            .order("id", { ascending: true }),
           supabase.from("payment_methods").select("id, payment_method_name"),
         ]);
 
@@ -292,7 +295,7 @@ export default function SubscriptionsPage() {
 
           <div className="w-full mx-auto mt-3">
             {isLoading ? (
-              // 読み込み中の表示
+              // スピナー表示
               <div className="sm:w-2/3 w-full mx-auto flex flex-col items-center justify-center py-20">
                 <div className="animate-spin text-emerald-500 mb-4">
                   <svg
