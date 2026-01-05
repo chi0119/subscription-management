@@ -156,11 +156,7 @@ export default function SubscriptionsPage() {
   }, [session?.user?.id]);
 
   const handleSelectChange = (value: string) => {
-    if (value === "reset") {
-      setDisplayFilter("");
-    } else {
-      setDisplayFilter(value);
-    }
+    setDisplayFilter(value);
   };
 
   const formatDate = (dateString: string | undefined) => {
@@ -226,14 +222,33 @@ export default function SubscriptionsPage() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+
+  // ソート済みの全リストを作成
+  const sortedSubscriptions = [...subscriptions].sort((a, b) => {
+    const getTime = (dateStr: string | undefined | null) =>
+      dateStr ? new Date(dateStr).getTime() : 0;
+
+    switch (displayFilter) {
+      case "oldest":
+        return getTime(a.created_at) - getTime(b.created_at);
+      case "price_desc":
+        return b.amount - a.amount;
+      case "price_asc":
+        return a.amount - b.amount;
+      default:
+        return getTime(b.created_at) - getTime(a.created_at);
+    }
+  });
+
+  // ページネーション用の計算
+  const totalPages = Math.ceil(subscriptions.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentSubscriptions = subscriptions.slice(
+
+  const currentSubscriptions = sortedSubscriptions.slice(
     indexOfFirstItem,
     indexOfLastItem
   );
-  const allSubscriptions = subscriptions;
-  const totalPages = Math.ceil(subscriptions.length / itemsPerPage);
 
   return (
     <TooltipProvider>
@@ -301,18 +316,22 @@ export default function SubscriptionsPage() {
                 {/* 表示切替 */}
                 <div className="sm:w-2/3 w-full mx-auto mb-2">
                   <div className="hidden lg:flex items-center justify-start gap-2 mt-7">
-                    <Label htmlFor="display-select">表示切替：</Label>
+                    <Label htmlFor="display-select">並び替え：</Label>
                     <Select
-                      value={displayFilter}
+                      value={displayFilter || "newest"}
                       onValueChange={handleSelectChange}
                     >
-                      <SelectTrigger id="display-select" className="w-48">
-                        <SelectValue placeholder="選択してください" />
+                      <SelectTrigger
+                        id="display-select"
+                        className="w-48 bg-white border-gray-300 focus:border-blue-400 focus-visible:border-blue-400 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 outline-none shadow-none transition-all duration-200"
+                      >
+                        <SelectValue placeholder="登録が新しい順" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="reset">--選択クリア--</SelectItem>
-                        <SelectItem value="category">カテゴリ別</SelectItem>
-                        <SelectItem value="price">金額別</SelectItem>
+                        <SelectItem value="newest">登録が新しい順</SelectItem>
+                        <SelectItem value="oldest">登録が古い順</SelectItem>
+                        <SelectItem value="price_desc">金額が高い順</SelectItem>
+                        <SelectItem value="price_asc">金額が低い順</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
