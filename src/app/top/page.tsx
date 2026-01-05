@@ -12,19 +12,12 @@ import {
 import { WalletCards } from "lucide-react";
 
 export default function TopPage() {
-  const { averageMonthlyAmount, isLoading } = useSubscription();
-
-  // サブスクリプションのダミーデータ
-  const subscriptions = [
-    { name: "サブスク1", price: "550", id: 1, isPaid: true },
-    { name: "サブスク3", price: "950", id: 3, isPaid: true },
-    { name: "サブスク4", price: "110", id: 4, isPaid: true },
-    { name: "サブスク5", price: "1,980", id: 5, isPaid: true },
-    { name: "サブスク7", price: "980", id: 7, isPaid: true },
-    { name: "サブスク9", price: "550", id: 9, isPaid: true },
-    { name: "サブスク10", price: "1,200", id: 10, isPaid: true },
-    { name: "サブスク12", price: "800", id: 12, isPaid: true },
-  ];
+  const {
+    averageMonthlyAmount,
+    currentMonthTotal,
+    currentSubscriptions,
+    isLoading,
+  } = useSubscription();
 
   return (
     <>
@@ -43,7 +36,29 @@ export default function TopPage() {
                           <p className="lg:text-4xl md:text-3xl text-3xl whitespace-nowrap">
                             今月の合計金額
                           </p>
-                          <p className="lg:text-4xl md:text-3xl text-3xl font-bold">{`${"10,000"}円`}</p>
+                          {isLoading ? (
+                            <div className="flex items-center gap-3 text-emerald-600">
+                              <svg
+                                className="animate-spin"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="28"
+                                height="28"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="3"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              >
+                                <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                              </svg>
+                              <span className="lg:text-3xl md:text-2xl text-2xl  text-gray-500">
+                                計算中...
+                              </span>
+                            </div>
+                          ) : (
+                            <p className="lg:text-4xl md:text-3xl text-3xl font-bold">{`${currentMonthTotal.toLocaleString()}円`}</p>
+                          )}
                         </div>
                       </CardContent>
                     </Card>
@@ -71,7 +86,6 @@ export default function TopPage() {
                           </p>
                           {/* スピナーを表示 */}
                           <div className="text-sm md:text-base leading-none flex justify-end items-center min-w-[90px] h-5">
-                            {/* TOPページのスピナー部分を一覧ページと合わせた修正版 */}
                             {isLoading ? (
                               <div className="flex items-center gap-2 text-emerald-600">
                                 <svg
@@ -121,25 +135,65 @@ export default function TopPage() {
                   </p>
                 </div>
 
-                {/* map で表示 */}
+                {/* データが0件の場合 */}
+                {!isLoading && currentSubscriptions.length === 0 ? (
+                  <div className="w-full mt-5 p-10 flex flex-col items-center justify-center bg-gray-50/50 rounded-xl border-2 border-dashed border-gray-200">
+                    <div className="text-gray-300 mb-4">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="48"
+                        height="48"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M21 15V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8" />
+                        <path d="M3 10h18" />
+                        <path d="m15 19 2 2 4-4" />
+                      </svg>
+                    </div>
+                    <p className="text-gray-500 font-medium">
+                      今月支払いのサブスクはありません
+                    </p>
+                  </div>
+                ) : (
+                  /* map で表示 */
+                  /* 768px以上: 5行×2列、768px未満: 1列 表示 */
+                  <div className="grid md:grid-rows-5 md:grid-flow-col gap-x-4 gap-y-2 mt-5 grid-cols-1 md:grid-cols-[1fr_1fr]">
+                    {!isLoading &&
+                      currentSubscriptions?.map((sub: any) => (
+                        <div key={sub.id}>
+                          <Card className="rounded-md shadow-xs py-1">
+                            <div className="flex justify-between items-center md:py-2 px-3 py-0">
+                              <p className="md:text-base text-sm text-gray-600">
+                                {sub.subscription_name}
+                              </p>
 
-                {/* 768px以上: 5行×2列、768px未満: 1列 表示 */}
-                <div className="grid md:grid-rows-5 md:grid-flow-col gap-x-4 gap-y-2 mt-5 grid-cols-1 md:grid-cols-[1fr_1fr]">
-                  {subscriptions.map((sub, index) => {
-                    return (
-                      <div key={sub.id}>
-                        <Card className="rounded-md shadow-xs py-1">
-                          <div className="flex justify-between items-center md:py-2 px-3 py-0">
-                            <p className="md:text-base text-sm text-gray-600">
-                              {sub.name}
-                            </p>
-                            <p className="md:text-base text-sm whitespace-nowrap text-gray-600">{`${sub.price}円`}</p>
-                          </div>
-                        </Card>
-                      </div>
-                    );
-                  })}
-                </div>
+                              <div className="flex items-baseline gap-3 shrink-0">
+                                <p className="text-[10px] md:text-xs text-gray-400">
+                                  (
+                                  {sub._thisMonthDays
+                                    ?.map((d: number) => `${d}日`)
+                                    .join(", ")}
+                                  )
+                                </p>
+
+                                <p className="md:text-base text-sm whitespace-nowrap text-gray-600">
+                                  {`${(
+                                    sub.amount *
+                                    (sub._thisMonthDays?.length || 1)
+                                  ).toLocaleString()}円`}
+                                </p>
+                              </div>
+                            </div>
+                          </Card>
+                        </div>
+                      ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>
