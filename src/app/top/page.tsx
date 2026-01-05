@@ -66,32 +66,36 @@ export default function TopPage() {
                     <TooltipTrigger asChild>
                       <Card className="w-auto text-center py-2 rounded-md shadow-xs">
                         <div className="flex justify-between items-center gap-4 px-5 py-0 text-gray-600">
-                          <p className="text-sm md:text-base whitespace-nowrap leading-none ">
+                          <p className="text-sm md:text-base whitespace-nowrap leading-none flex-1 text-left mr-4">
                             月の平均金額
                           </p>
                           {/* スピナーを表示 */}
-                          <p className="text-sm md:text-base leading-none">
+                          <div className="text-sm md:text-base leading-none flex justify-end items-center min-w-[90px] h-5">
+                            {/* TOPページのスピナー部分を一覧ページと合わせた修正版 */}
                             {isLoading ? (
-                              <span className="inline-flex items-center gap-1 text-gray-400">
+                              <div className="flex items-center gap-2 text-emerald-600">
                                 <svg
-                                  className="animate-spin text-emerald-500"
+                                  className="animate-spin"
                                   xmlns="http://www.w3.org/2000/svg"
-                                  width="20"
-                                  height="20"
+                                  width="16"
+                                  height="16"
                                   viewBox="0 0 24 24"
                                   fill="none"
                                   stroke="currentColor"
-                                  strokeWidth="2"
+                                  strokeWidth="2.5"
                                   strokeLinecap="round"
                                   strokeLinejoin="round"
                                 >
                                   <path d="M21 12a9 9 0 1 1-6.219-8.56" />
                                 </svg>
-                              </span>
+                                <span className="ext-xs text-gray-500 whitespace-nowrap">
+                                  計算中...
+                                </span>
+                              </div>
                             ) : (
-                              `${averageMonthlyAmount.toLocaleString()}円`
+                              <p>{averageMonthlyAmount.toLocaleString()}円</p>
                             )}
-                          </p>
+                          </div>
                         </div>
                       </Card>
                     </TooltipTrigger>
