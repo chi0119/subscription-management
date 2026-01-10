@@ -142,32 +142,70 @@ export default function TopPage() {
                 ) : (
                   /* map で表示 */
                   /* 768px以上: 5行×2列、768px未満: 1列 表示 */
-                  <div className="grid md:grid-rows-5 md:grid-flow-col gap-x-4 gap-y-2 mt-5 grid-cols-1 md:grid-cols-[1fr_1fr]">
-                    {!isLoading &&
-                      currentSubscriptions?.map((sub: any) => (
-                        <div key={sub.id}>
-                          <Card className="rounded-md shadow-xs py-1">
+                  <div className="flex flex-col md:flex-row gap-4 mt-5">
+                    {/* 左列 */}
+                    <div className="flex flex-col gap-2 flex-1">
+                      {currentSubscriptions
+                        ?.slice()
+                        .sort((a, b) => a.payment_date - b.payment_date)
+                        .slice(0, Math.ceil(currentSubscriptions.length / 2))
+                        .map((sub: any) => (
+                          <Card
+                            key={sub.id}
+                            className="rounded-md shadow-xs py-1"
+                          >
                             <div className="flex justify-between items-center md:py-2 px-3 py-0">
                               <p className="md:text-base text-sm text-gray-600">
                                 {sub.subscription_name}
                               </p>
-
                               <div className="flex items-baseline gap-3 shrink-0">
                                 <p className="text-[10px] md:text-xs text-gray-400">
                                   ({sub.payment_date}日)
                                 </p>
-
                                 <p className="md:text-base text-sm whitespace-nowrap text-gray-600">
-                                  {`${(
+                                  {(
                                     sub.amount *
                                     (sub._thisMonthDays?.length || 1)
-                                  ).toLocaleString()}円`}
+                                  ).toLocaleString()}
+                                  円
                                 </p>
                               </div>
                             </div>
                           </Card>
-                        </div>
-                      ))}
+                        ))}
+                    </div>
+
+                    {/* 右列 */}
+                    <div className="flex flex-col gap-2 flex-1 mt-2 md:mt-0">
+                      {currentSubscriptions
+                        ?.slice()
+                        .sort((a, b) => a.payment_date - b.payment_date)
+                        .slice(Math.ceil(currentSubscriptions.length / 2))
+                        .map((sub: any) => (
+                          <Card
+                            key={sub.id}
+                            className="rounded-md shadow-xs py-1"
+                          >
+                            <div className="flex justify-between items-center md:py-2 px-3 py-0">
+                              <p className="md:text-base text-sm text-gray-600">
+                                {sub.subscription_name}
+                              </p>
+                              <div className="flex items-baseline gap-3 shrink-0">
+                                <p className="text-[10px] md:text-xs text-gray-400">
+                                  ({sub.payment_date}日)
+                                </p>
+                                <p className="md:text-base text-sm whitespace-nowrap text-gray-600">
+                                  {(
+                                    sub.amount *
+                                    (sub._thisMonthDays?.length || 1)
+                                  ).toLocaleString()}
+                                  円
+                                </p>
+                              </div>
+                            </div>
+                          </Card>
+                        ))}
+                    </div>
                   </div>
                 )}
               </div>

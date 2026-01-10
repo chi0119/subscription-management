@@ -19,6 +19,8 @@ const Header = () => {
   const pathname = usePathname();
   const router = useRouter();
 
+  const [loadingLogout, setLoadingLogout] = useState(false);
+
   // ハンバーガーメニュー
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -43,13 +45,18 @@ const Header = () => {
 
   const handleLogout = async () => {
     setIsMenuOpen(false);
+    setLoadingLogout(true);
 
-    await signOut({
-      redirect: false,
-    });
-
-    toast.success("ログアウトしました");
-    window.location.href = "/signin";
+    try {
+      await signOut({ redirect: false });
+      toast.success("ログアウトしました");
+      window.location.href = "/signin";
+    } catch (error) {
+      console.error(error);
+      toast.error("ログアウトに失敗しました");
+    } finally {
+      setLoadingLogout(false);
+    }
   };
 
   // ログインページはナビを非表示
@@ -103,8 +110,9 @@ const Header = () => {
               onClick={handleLogout}
               variant="outline"
               className="text-gray-600 rounded-md shadow-xs cursor-pointer"
+              disabled={loadingLogout}
             >
-              ログアウト
+              {loadingLogout ? "ログアウト中..." : "ログアウト"}
             </Button>
           )}
         </div>
@@ -148,7 +156,7 @@ const Header = () => {
                 }
               `}
               >
-                <nav className="flex flex-col space-y-3 px-2">
+                <nav className="flex flex-col px-2">
                   {navItem.map((item) => {
                     const isActive =
                       item.href === "/"
@@ -160,7 +168,7 @@ const Header = () => {
                         key={item.name}
                         href={item.href}
                         onClick={handleItemClick}
-                        className={`text-xs font-medium text-left ${
+                        className={`text-xs font-medium text-left px-2 py-2 ${
                           isActive ? "text-gray-600 font-bold" : "text-gray-600"
                         }`}
                       >
@@ -168,16 +176,20 @@ const Header = () => {
                       </Link>
                     );
                   })}
-                  {/* ハンバーガーメニュー ログアウト */}
-                  <button
+
+                  {/* ログアウトボタン */}
+                  <Button
                     onClick={() => {
                       handleLogout();
                       handleItemClick();
                     }}
-                    className="text-xs font-medium text-left text-gray-600 cursor-pointer"
+                    variant="ghost"
+                    size="sm"
+                    className="block text-left text-xs font-medium text-gray-600 px-2 py-2 rounded-none hover:text-gray-600 focus:text-gray-600"
+                    disabled={loadingLogout}
                   >
-                    ログアウト
-                  </button>
+                    {loadingLogout ? "ログアウト中..." : "ログアウト"}
+                  </Button>
                 </nav>
               </div>
             </div>
