@@ -26,104 +26,84 @@ export default function TopPage() {
           <div className="flex flex-col items-center">
             <div className="sm:w-2/3 w-full">
               {/* 今月の合計金額*/}
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Card className=" w-full bg-linear-to-b from-lime-100 to-emerald-200 text-center shadow-md border border-lime-50 text-gray-600">
-                      <CardContent className="py-2 md:py-10 flex justify-center items-center px-5 gap-x-10">
-                        {/* 768px以上: 横並び、768px未満: 縦並び 表示 */}
-                        <div className="flex flex-col gap-4 md:flex-row md:gap-x-10">
-                          <p className="lg:text-4xl md:text-3xl text-3xl whitespace-nowrap">
-                            今月の合計金額
-                          </p>
-                          {isLoading ? (
-                            <div className="flex items-center gap-3 text-emerald-600">
-                              <svg
-                                className="animate-spin"
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="28"
-                                height="28"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="3"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              >
-                                <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-                              </svg>
-                              <span className="lg:text-3xl md:text-2xl text-2xl  text-gray-500">
-                                計算中...
-                              </span>
-                            </div>
-                          ) : (
-                            <p className="lg:text-4xl md:text-3xl text-3xl font-bold">{`${currentMonthTotal.toLocaleString()}円`}</p>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </TooltipTrigger>
-                  <TooltipContent
-                    side="bottom"
-                    align="center"
-                    sideOffset={-60}
-                    className="bg-transparent text-gray-600 border-gray-200 rounded-md shadow-md px-3 py-1.5 text-sm md:text-base leading-tight"
-                  >
-                    <p className="pt-1">今月支払いのサブスク合計金額です</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+
+              <Card className=" w-full bg-linear-to-b from-lime-100 to-emerald-200 text-center shadow-md border border-lime-50 text-gray-600">
+                <CardContent className="py-2 md:py-10 flex flex-col justify-center items-center px-5 gap-x-10">
+                  {/* 768px以上: 横並び、768px未満: 縦並び 表示 */}
+                  <div className="flex flex-wrap justify-center items-center gap-4 md:flex-row md:gap-x-10">
+                    <p className="lg:text-4xl md:text-3xl text-3xl whitespace-nowrap">
+                      今月の合計金額
+                    </p>
+                    {isLoading ? (
+                      <div className="flex items-center gap-3 text-emerald-600">
+                        <svg
+                          className="animate-spin"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="28"
+                          height="28"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="3"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                        </svg>
+                        <span className="lg:text-3xl md:text-2xl text-2xl  text-gray-500">
+                          計算中...
+                        </span>
+                      </div>
+                    ) : (
+                      <p className="lg:text-4xl md:text-3xl text-3xl font-bold">{`${currentMonthTotal.toLocaleString()}円`}</p>
+                    )}
+                  </div>
+                  <p className="pt-1 text-center text-gray-500 text-sm mt-2">
+                    ※今月支払いのサブスク合計金額です
+                  </p>
+                </CardContent>
+              </Card>
 
               {/* 月の平均金額 */}
-              <div className="flex justify-end pt-5">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Card className="w-auto text-center py-2 rounded-md shadow-xs">
-                        <div className="flex justify-between items-center gap-4 px-5 py-0 text-gray-600">
-                          <p className="text-sm md:text-base whitespace-nowrap leading-none flex-1 text-left mr-4">
-                            月の平均金額
-                          </p>
-                          {/* スピナーを表示 */}
-                          <div className="text-sm md:text-base leading-none flex justify-end items-center min-w-[90px] h-5">
-                            {isLoading ? (
-                              <div className="flex items-center gap-2 text-emerald-600">
-                                <svg
-                                  className="animate-spin"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="16"
-                                  height="16"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="2.5"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                >
-                                  <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-                                </svg>
-                                <span className="ext-xs text-gray-500 whitespace-nowrap">
-                                  計算中...
-                                </span>
-                              </div>
-                            ) : (
-                              <p>{averageMonthlyAmount.toLocaleString()}円</p>
-                            )}
+              <div className="pt-5 flex justify-end">
+                <Card className="w-auto text-center py-2 rounded-md shadow-xs">
+                  <div className="flex flex-col justify-end pt-1">
+                    <div className="flex justify-between items-center px-4 py-0 text-gray-600">
+                      <p className="text-sm md:text-base whitespace-nowrap leading-none text-left">
+                        月の平均金額
+                      </p>
+                      {/* スピナーを表示 */}
+                      <div className="text-sm md:text-base leading-none flex justify-end items-center min-w-[90px] h-5">
+                        {isLoading ? (
+                          <div className="flex items-center gap-2 text-emerald-600">
+                            <svg
+                              className="animate-spin"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                            </svg>
+                            <span className="ext-xs text-gray-500 whitespace-nowrap">
+                              計算中...
+                            </span>
                           </div>
-                        </div>
-                      </Card>
-                    </TooltipTrigger>
-
-                    <TooltipContent
-                      side="bottom"
-                      align="center"
-                      sideOffset={-5}
-                      className="bg-white text-gray-600 border border-gray-200 rounded-md shadow-sm px-2.5 py-1.5 text-xs leading-none racking-tight"
-                    >
-                      <p className="pt-1">1ヶ月あたりの平均金額です</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                        ) : (
+                          <p>{averageMonthlyAmount.toLocaleString()}円</p>
+                        )}
+                      </div>
+                    </div>
+                    <p className="pt-1 text-gray-500 text-xs mt-1 pr-1">
+                      ※1ヶ月あたりの平均金額です
+                    </p>
+                  </div>
+                </Card>
               </div>
 
               {/* 今月支払いのサブスク一覧 */}
@@ -174,11 +154,7 @@ export default function TopPage() {
 
                               <div className="flex items-baseline gap-3 shrink-0">
                                 <p className="text-[10px] md:text-xs text-gray-400">
-                                  (
-                                  {sub._thisMonthDays
-                                    ?.map((d: number) => `${d}日`)
-                                    .join(", ")}
-                                  )
+                                  ({sub.payment_date}日)
                                 </p>
 
                                 <p className="md:text-base text-sm whitespace-nowrap text-gray-600">
