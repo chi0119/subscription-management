@@ -127,14 +127,15 @@ export const SubscriptionProvider = ({
 
         // 今月の合計金額を計算
         const currentTotal = data.reduce((sum, sub: any) => {
+          // 今月の支払日を計算
           const pDays = isDueThisMonth(sub);
           sub._thisMonthDays = pDays;
 
-          // 配列の長さ（回数）分だけ金額を合計する
+          // 配列の長さ（回数）分だけ金額を合計する（今月支払う回数 × 金額）
           return sum + sub.amount * pDays.length;
         }, 0);
 
-        // 平均月額を計算 (年額などを月割りにする)
+        // 月の平均金額を計算（月割り）
         const totalMonthlyAvg = data.reduce((sum, sub) => {
           const cycleData = sub.payment_cycles;
           const cycleText =
@@ -145,6 +146,7 @@ export const SubscriptionProvider = ({
           const cycleMatch = cycleText.match(/\d+/);
           let interval = cycleMatch ? parseInt(cycleMatch[0], 10) : 1;
           if (cycleText.includes("年")) interval = 12;
+          if (cycleText.includes("30日")) interval = 1;
 
           return sum + sub.amount / interval;
         }, 0);
