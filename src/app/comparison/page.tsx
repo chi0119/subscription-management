@@ -50,7 +50,7 @@ const ComparisonPage = () => {
         <div className="sm:w-2/3 w-full mx-auto">
           <div className="flex flex-col xl:flex-row justify-between items-stretch gap-x-8 gap-y-15 ">
             {/* 金額別 */}
-            <div className="w-full xl:w-1/2  rounded-md shadow-sm border">
+            <div className="w-full xl:w-1/2  ">
               <p className="text-center mt-2">金額別</p>
               <div className=" border-gray-300 flex items-start justify-center text-gray-500 min-h-[400px] pb-2 xl:pb-10">
                 <ComparisonPieChart data={amountData} type="amount" />
@@ -59,7 +59,7 @@ const ComparisonPage = () => {
 
             {/* カテゴリ別 */}
             {/* lg:1024px xl:1280px */}
-            <div className="w-full xl:w-1/2 rounded-md shadow-sm border">
+            <div className="w-full xl:w-1/2 ">
               <p className="text-center mt-2">カテゴリ別</p>
               <div className=" border-gray-300 flex items-start justify-center text-gray-500 min-h-[400px] pb-2 xl:pb-10">
                 <ComparisonPieChart data={categoryData} type="category" />
