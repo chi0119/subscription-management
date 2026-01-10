@@ -54,6 +54,8 @@ import {
   Subscription,
 } from "@/types/subscription";
 import { useSubscription } from "@/contexts/SubscriptionContext";
+import { EllipsisTooltip } from "@/components/EllipsisTooltip";
+import Link from "next/link";
 
 // Supabaseクライアントの初期化
 const supabase = createClient(
@@ -253,6 +255,26 @@ export default function SubscriptionsPage() {
     indexOfLastItem
   );
 
+  // ページネーション (前後2ページ表示)
+  const getPageNumbers = (total: number, current: number) => {
+    const delta = 2;
+    const range: (number | string)[] = [];
+
+    for (let i = 1; i <= total; i++) {
+      if (
+        i === 1 ||
+        i === total ||
+        (i >= current - delta && i <= current + delta)
+      ) {
+        range.push(i);
+      } else if (range[range.length - 1] !== "...") {
+        range.push("...");
+      }
+    }
+
+    return range;
+  };
+
   return (
     <TooltipProvider>
       <div className="container mx-auto px-4">
@@ -347,22 +369,22 @@ export default function SubscriptionsPage() {
                         <TableHead className=" py-0 w-[150px] text-gray-700">
                           サブスク名
                         </TableHead>
-                        <TableHead className=" text-center py-0 w-[100px] text-gray-700">
+                        <TableHead className="  py-0 w-[100px] text-gray-700">
                           カテゴリー
                         </TableHead>
-                        <TableHead className=" text-center py-0 w-[90px] text-gray-700">
+                        <TableHead className="text-center py-0 w-[90px] text-gray-700">
                           金額
                         </TableHead>
-                        <TableHead className="  text-center py-0 w-[100px] text-gray-700">
+                        <TableHead className="  py-0 w-[100px] text-gray-700">
                           契約日
                         </TableHead>
-                        <TableHead className="  text-center py-0 w-[110px] text-gray-700">
+                        <TableHead className=" py-0 w-[110px] text-gray-700">
                           支払いサイクル
                         </TableHead>
-                        <TableHead className="  text-center py-0 w-20 text-gray-700">
+                        <TableHead className="py-0 w-20 text-gray-700">
                           支払日
                         </TableHead>
-                        <TableHead className="  text-center py-0 w-[120px] text-gray-700">
+                        <TableHead className="py-0 w-[120px] text-gray-700">
                           支払い方法
                         </TableHead>
                         <TableHead className="text-gray-700">備考</TableHead>
@@ -376,71 +398,43 @@ export default function SubscriptionsPage() {
                           className="border-t-2 border-b-2 border-gray-200"
                         >
                           <TableCell className="max-w-[150px] py-2">
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <span className="truncate block">
-                                  {sub.subscription_name}
-                                </span>
-                              </TooltipTrigger>
-                              <TooltipContent className="bg-white text-gray-600 border-gray-300 shadow-lg rounded p-2 max-w-xs">
-                                {sub.subscription_name}
-                              </TooltipContent>
-                            </Tooltip>
+                            <EllipsisTooltip
+                              text={sub.subscription_name}
+                              maxWidth="150px"
+                            />
                           </TableCell>
 
-                          <TableCell className="max-w-[100px] py-2 text-center">
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <span className="truncate block">
-                                  {sub.category_name}
-                                </span>
-                              </TooltipTrigger>
-                              <TooltipContent className="bg-white text-gray-600 border-gray-300 shadow-lg rounded p-2 max-w-xs">
-                                {sub.category_name}
-                              </TooltipContent>
-                            </Tooltip>
+                          <TableCell className="max-w-[100px] py-2">
+                            <EllipsisTooltip
+                              text={sub.category_name}
+                              maxWidth="100px"
+                            />
                           </TableCell>
+
                           <TableCell className="text-right py-2">{`${sub.amount.toLocaleString()}円`}</TableCell>
-                          <TableCell className=" py-2 text-center">
+
+                          <TableCell className=" py-2">
                             {formatDate(sub.contract_date)}
                           </TableCell>
-                          <TableCell className=" py-2 text-center">
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <span className="truncate block">
-                                  {sub.payment_cycle}
-                                </span>
-                              </TooltipTrigger>
-                              <TooltipContent className="bg-white text-gray-600 border-gray-300 shadow-lg rounded p-2 max-w-xs">
-                                {sub.payment_cycle}
-                              </TooltipContent>
-                            </Tooltip>
+
+                          <TableCell className=" py-2">
+                            {sub.payment_cycle}
                           </TableCell>
-                          <TableCell className=" py-2 text-center">{`${sub.payment_date}日`}</TableCell>
-                          <TableCell className="max-w-[120px] py-2 text-center">
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <span className="truncate block">
-                                  {sub.payment_method || "-"}
-                                </span>
-                              </TooltipTrigger>
-                              <TooltipContent className="bg-white text-gray-600 border-gray-300 shadow-lg rounded p-2 max-w-xs">
-                                {sub.payment_method}
-                              </TooltipContent>
-                            </Tooltip>
+
+                          <TableCell className=" py-2">{`${sub.payment_date}日`}</TableCell>
+
+                          <TableCell className="max-w-[120px] py-2 ">
+                            <EllipsisTooltip
+                              text={sub.payment_method}
+                              maxWidth="120px"
+                            />
                           </TableCell>
 
                           <TableCell className="max-w-[150px] py-2">
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <span className="truncate block">
-                                  {sub.notes || "-"}
-                                </span>
-                              </TooltipTrigger>
-                              <TooltipContent className="bg-white text-gray-600 border-gray-300 shadow-lg rounded p-2 max-w-xs">
-                                {sub.notes}
-                              </TooltipContent>
-                            </Tooltip>
+                            <EllipsisTooltip
+                              text={sub.notes}
+                              maxWidth="150px"
+                            />
                           </TableCell>
 
                           <TableCell className="flex gap-1 justify-start  py-2 pl-1">
@@ -544,7 +538,7 @@ export default function SubscriptionsPage() {
                 </div>
 
                 {/* ページネーション */}
-                {subscriptions.length > 0 && (
+                {subscriptions.length > 0 && totalPages > 1 && (
                   <div className="hidden lg:flex justify-center mt-8 mb-10">
                     <Pagination>
                       <PaginationContent className="gap-2">
@@ -563,20 +557,28 @@ export default function SubscriptionsPage() {
                             &lt;
                           </button>
                         </PaginationItem>
-                        {[...Array(totalPages)].map((_, index) => (
-                          <PaginationItem key={index + 1}>
-                            <button
-                              onClick={() => setCurrentPage(index + 1)}
-                              className={`px-3 py-1 text-sm font-medium transition-colors ${
-                                currentPage === index + 1
-                                  ? "text-emerald-600 border-b-2 border-emerald-600"
-                                  : "text-gray-600 hover:text-emerald-500 cursor-pointer"
-                              }`}
-                            >
-                              {index + 1}
-                            </button>
-                          </PaginationItem>
-                        ))}
+
+                        {getPageNumbers(totalPages, currentPage).map(
+                          (num, idx) => (
+                            <PaginationItem key={idx}>
+                              {num === "..." ? (
+                                <span className="px-2 text-gray-400">...</span>
+                              ) : (
+                                <button
+                                  onClick={() => setCurrentPage(Number(num))}
+                                  className={`px-3 py-1 text-sm font-medium transition-colors ${
+                                    currentPage === num
+                                      ? "text-emerald-600 border-b-2 border-emerald-600"
+                                      : "text-gray-600 hover:text-emerald-500 cursor-pointer"
+                                  }`}
+                                >
+                                  {num}
+                                </button>
+                              )}
+                            </PaginationItem>
+                          )
+                        )}
+
                         <PaginationItem>
                           <button
                             onClick={() =>
@@ -588,7 +590,7 @@ export default function SubscriptionsPage() {
                             className={`px-3 py-1 text-sm font-medium ${
                               currentPage === totalPages
                                 ? "text-gray-300 cursor-not-allowed"
-                                : "text-gray-600 hover:text-blue-500 cursor-pointer"
+                                : "text-gray-600 hover:text-emerald-600 cursor-pointer"
                             }`}
                           >
                             &gt;
@@ -623,7 +625,13 @@ export default function SubscriptionsPage() {
                   登録されたサブスクはありません
                 </p>
                 <p className="text-gray-400 text-sm mt-1">
-                  新規登録ページから追加できます
+                  <Link
+                    href="/subscriptions/new"
+                    className="text-emerald-600 hover:underline"
+                  >
+                    新規登録ページ
+                  </Link>
+                  から追加できます
                 </p>
               </div>
             )}
