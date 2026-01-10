@@ -29,29 +29,48 @@ const NewSubscriptionPage = () => {
 
   // マスターデータ取得
   useEffect(() => {
-    const fetchMasterData = async () => {
-      try {
-        const { data: cat } = await supabase
+    // 認証状態の変化を監視
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (!session?.user) return; // ログインしていなければ何もしない
+
+        const userId = session.user.id;
+
+        // カテゴリ取得（自分のユーザIDで絞る）
+        const { data: cat, error: catError } = await supabase
           .from("categories")
           .select("id, category_name")
+          .eq("user_id", userId)
           .is("deleted_at", null)
           .order("id");
+
+        if (catError) {
+          toast.error("カテゴリの読み込みに失敗しました");
+          return;
+        }
+
+        setCategories(cat || []);
+
+        // payment_cycles と payment_methods
         const { data: cyc } = await supabase
           .from("payment_cycles")
           .select("id, payment_cycle_name")
           .order("id");
+
         const { data: met } = await supabase
           .from("payment_methods")
           .select("id, payment_method_name")
           .order("id");
-        setCategories(cat || []);
+
         setPaymentCycles(cyc || []);
         setPaymentMethods(met || []);
-      } catch (error) {
-        toast.error("データの読み込みに失敗しました");
       }
+    );
+
+    // クリーンアップ
+    return () => {
+      listener.subscription.unsubscribe();
     };
-    fetchMasterData();
   }, []);
 
   // 登録処理
