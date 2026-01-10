@@ -45,7 +45,7 @@ export const SubscriptionProvider = ({
       const { data, error } = await supabase
         .from("subscriptions")
         .select(
-          `id, subscription_name, amount, contract_date, payment_cycles(payment_cycle_name)`
+          `id, subscription_name, amount, contract_date,payment_date, payment_cycles(payment_cycle_name)`
         )
         .eq("user_id", session.user.id);
 
