@@ -271,6 +271,7 @@ const CategoriesPage = () => {
                       variant="ghost"
                       size="icon"
                       onClick={() => handleDeleteCategory(globalIndex)}
+                      className="cursor-pointer"
                     >
                       <Trash2 size={20} />
                     </Button>

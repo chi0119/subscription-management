@@ -23,6 +23,7 @@ import {
 } from "../ui/alert-dialog";
 import { toast } from "sonner";
 import { Subscription } from "@/types/subscription";
+import { Loader2 } from "lucide-react";
 
 interface SubscriptionFormProps {
   amount: string;
@@ -75,6 +76,7 @@ export const SubscriptionForm = ({
   const [isDuplicateDialogOpen, setIsDuplicateDialogOpen] = useState(false);
   const [isDoneDialogOpen, setIsDoneDialogOpen] = useState(false);
   const [isError, setIsError] = useState(false);
+  const [loadingRegister, setLoadingRegister] = useState(false);
 
   const baseContainer =
     "border rounded-md shadow-sm transition-all duration-200";
@@ -165,10 +167,23 @@ export const SubscriptionForm = ({
         ? await onCheckDuplicate(formData.subscription_name)
         : false;
 
+      // サブスク名の重複 トーストで表示する場合
+      // if (isDuplicate) {
+      //   toast.error(
+      //     <div className="flex flex-col">
+      //       <span>サブスク名が既に登録されています。</span>
+      //       <span className="text-sm opacity-80">別の名前にしてください</span>
+      //     </div>
+      //   );
+      //   return;
+      // }
+
+      // サブスク名の重複 ダイアログで表示する場合
       if (isDuplicate) {
         setIsDuplicateDialogOpen(true);
         return;
       }
+
       if (isEdit) {
         // 更新時は直接保存
         await handleRegister();
@@ -190,32 +205,41 @@ export const SubscriptionForm = ({
 
   // 保存処理の実行
   const handleRegister = async () => {
-    const submitData = {
-      ...formData,
-      category_id: formData.category_id ? Number(formData.category_id) : null,
-      payment_cycle_id: formData.payment_cycle_id
-        ? Number(formData.payment_cycle_id)
-        : null,
-      payment_method_id: formData.payment_method_id
-        ? Number(formData.payment_method_id)
-        : null,
-      payment_date: formData.payment_date
-        ? Number(formData.payment_date)
-        : null,
-      amount: Number(amount.replace(/,/g, "")),
-    };
-    const success = await onSubmit(submitData);
-    if (success) {
-      setIsConfirmDialogOpen(false);
-      setIsDuplicateDialogOpen(false);
+    try {
+      setLoadingRegister(true);
 
-      if (isEdit) {
-        // 更新時は完了ポップアップを出さない
-        onGoToList();
-      } else {
-        // 新規登録時のみ、「登録完了」のポップアップを出す
-        setTimeout(() => setIsDoneDialogOpen(true), 100);
+      const submitData = {
+        ...formData,
+        category_id: formData.category_id ? Number(formData.category_id) : null,
+        payment_cycle_id: formData.payment_cycle_id
+          ? Number(formData.payment_cycle_id)
+          : null,
+        payment_method_id: formData.payment_method_id
+          ? Number(formData.payment_method_id)
+          : null,
+        payment_date: formData.payment_date
+          ? Number(formData.payment_date)
+          : null,
+        amount: Number(amount.replace(/,/g, "")),
+      };
+      const success = await onSubmit(submitData);
+
+      if (success) {
+        setIsConfirmDialogOpen(false);
+        setIsDuplicateDialogOpen(false);
+
+        if (isEdit) {
+          // 更新時は完了ポップアップを出さない
+          onGoToList();
+        } else {
+          // 新規登録時のみ、「登録完了」のポップアップを出す
+          setTimeout(() => setIsDoneDialogOpen(true), 100);
+        }
       }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoadingRegister(false);
     }
   };
 
@@ -257,6 +281,7 @@ export const SubscriptionForm = ({
           className="block text-sm font-medium text-gray-600 sm:w-1/4"
         >
           サブスク名
+          <span className="text-red-400 ml-1">*</span>
         </Label>
         <div
           className={getContainerClass(
@@ -283,6 +308,7 @@ export const SubscriptionForm = ({
           className="block text-sm font-medium text-gray-600 sm:w-1/4"
         >
           カテゴリー
+          <span className="text-red-400 ml-1">*</span>
         </Label>
         <div className={getContainerClass(isError && !formData.category_id)}>
           <Select
@@ -312,6 +338,7 @@ export const SubscriptionForm = ({
           className="block text-sm font-medium text-gray-600 sm:w-1/4"
         >
           金額
+          <span className="text-red-400 ml-1">*</span>
         </Label>
         <div
           className={`flex items-center h-10 ${getContainerClass(
@@ -339,6 +366,7 @@ export const SubscriptionForm = ({
           className="block text-sm font-medium text-gray-600 sm:w-1/4"
         >
           契約日
+          <span className="text-red-400 ml-1">*</span>
         </Label>
         <div className={getContainerClass(isError && !formData.contract_date)}>
           <Input
@@ -361,6 +389,7 @@ export const SubscriptionForm = ({
           className="block text-sm font-medium text-gray-600 sm:w-1/4"
         >
           支払いサイクル
+          <span className="text-red-400 ml-1">*</span>
         </Label>
         <div
           className={getContainerClass(isError && !formData.payment_cycle_id)}
@@ -392,6 +421,7 @@ export const SubscriptionForm = ({
           className="block text-sm font-medium text-gray-600 sm:w-1/4"
         >
           支払日
+          <span className="text-red-400 ml-1">*</span>
         </Label>
         <div className={getContainerClass(isError && !formData.payment_date)}>
           <Select
@@ -421,6 +451,7 @@ export const SubscriptionForm = ({
           className="block text-sm font-medium text-gray-600 sm:w-1/4"
         >
           支払い方法
+          <span className="text-red-400 ml-1">*</span>
         </Label>
         <div
           className={getContainerClass(isError && !formData.payment_method_id)}
@@ -472,11 +503,18 @@ export const SubscriptionForm = ({
         <Button
           onClick={handleRegisterClick}
           className="py-2 px-8 bg-emerald-500 hover:bg-emerald-600 text-white cursor-pointer"
-          disabled={isSubmitting}
+          disabled={loadingRegister}
         >
-          {buttonLabel}
+          {loadingRegister
+            ? isEdit
+              ? "更新中..."
+              : "登録中..."
+            : isEdit
+            ? "更新"
+            : "登録"}
         </Button>
 
+        {/* サブスク名の重複 ダイアログで表示する場合 */}
         {/* 重複確認ダイアログ */}
         <AlertDialog
           open={isDuplicateDialogOpen}
@@ -487,20 +525,11 @@ export const SubscriptionForm = ({
               <AlertDialogTitle className="text-center text-base font-normal text-gray-600">
                 「{formData.subscription_name}」は既に登録されています
                 <br />
-                <span className="text-sm text-gray-500 font-normal">
-                  このまま{isEdit ? "更新" : "登録"}してもよろしいでしょうか
-                </span>
+                別のサブスク名に変更してください
               </AlertDialogTitle>
             </AlertDialogHeader>
-
-            <AlertDialogFooter className="flex justify-center gap-3 sm:justify-center flex-row ">
-              <AlertDialogAction
-                onClick={handleProceedFromDuplicate}
-                className="bg-emerald-500 hover:bg-emerald-600"
-              >
-                {isEdit ? "更新" : "登録"}
-              </AlertDialogAction>
-              <AlertDialogCancel>いいえ</AlertDialogCancel>
+            <AlertDialogFooter className="flex justify-center gap-3 sm:justify-center flex-row">
+              <AlertDialogCancel>閉じる</AlertDialogCancel>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
@@ -522,8 +551,18 @@ export const SubscriptionForm = ({
               <AlertDialogAction
                 onClick={handleRegister}
                 className="bg-emerald-500 hover:bg-emerald-600"
+                disabled={loadingRegister}
               >
-                登録
+                {loadingRegister ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    {isEdit ? "更新中..." : "登録中..."}
+                  </>
+                ) : isEdit ? (
+                  "更新"
+                ) : (
+                  "登録"
+                )}
               </AlertDialogAction>
               <AlertDialogCancel>いいえ</AlertDialogCancel>
             </AlertDialogFooter>

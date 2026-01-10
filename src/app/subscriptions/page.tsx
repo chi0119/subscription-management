@@ -56,6 +56,7 @@ import {
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { EllipsisTooltip } from "@/components/EllipsisTooltip";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 // Supabaseクライアントの初期化
 const supabase = createClient(
@@ -439,18 +440,21 @@ export default function SubscriptionsPage() {
 
                           <TableCell className="flex gap-1 justify-start  py-2 pl-1">
                             <div className="flex gap-1 justify-start">
-                              <button
+                              <Button
                                 onClick={() => handleEditClick(sub)}
+                                variant="ghost"
                                 className="p-2 rounded-md text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
                               >
                                 <Pencil size={16} />
-                              </button>
-                              <button
-                                className="p-2 rounded-md text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer"
+                              </Button>
+
+                              <Button
                                 onClick={() => handleDeleteClick(sub.id)}
+                                variant="ghost"
+                                className="p-2 rounded-md text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer"
                               >
                                 <Trash2 size={16} />
-                              </button>
+                              </Button>
                             </div>
                           </TableCell>
                         </TableRow>
@@ -476,18 +480,21 @@ export default function SubscriptionsPage() {
                             </span>
                           </div>
                           <div className="flex gap-1 ml-3">
-                            <button
+                            <Button
                               onClick={() => handleEditClick(sub)}
+                              variant="ghost"
                               className="p-2 rounded-md text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
                             >
                               <Pencil size={18} />
-                            </button>
-                            <button
-                              className="p-2 rounded-md text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer"
+                            </Button>
+
+                            <Button
                               onClick={() => handleDeleteClick(sub.id)}
+                              variant="ghost"
+                              className="p-2 rounded-md text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer"
                             >
                               <Trash2 size={18} />
-                            </button>
+                            </Button>
                           </div>
                         </div>
                         <div className="space-y-2 text-sm">
@@ -543,11 +550,12 @@ export default function SubscriptionsPage() {
                     <Pagination>
                       <PaginationContent className="gap-2">
                         <PaginationItem>
-                          <button
+                          <Button
                             onClick={() =>
                               setCurrentPage((prev) => Math.max(prev - 1, 1))
                             }
                             disabled={currentPage === 1}
+                            variant="ghost"
                             className={`px-3 py-1 text-sm font-medium ${
                               currentPage === 1
                                 ? "text-gray-300 cursor-not-allowed"
@@ -555,7 +563,7 @@ export default function SubscriptionsPage() {
                             }`}
                           >
                             &lt;
-                          </button>
+                          </Button>
                         </PaginationItem>
 
                         {getPageNumbers(totalPages, currentPage).map(
@@ -564,29 +572,31 @@ export default function SubscriptionsPage() {
                               {num === "..." ? (
                                 <span className="px-2 text-gray-400">...</span>
                               ) : (
-                                <button
+                                <Button
                                   onClick={() => setCurrentPage(Number(num))}
-                                  className={`px-3 py-1 text-sm font-medium transition-colors ${
+                                  variant="ghost"
+                                  className={`px-3 py-1 text-sm font-medium transition-colors rounded-none ${
                                     currentPage === num
                                       ? "text-emerald-600 border-b-2 border-emerald-600"
-                                      : "text-gray-600 hover:text-emerald-500 cursor-pointer"
+                                      : "text-gray-600 hover:text-emerald-600 cursor-pointer"
                                   }`}
                                 >
                                   {num}
-                                </button>
+                                </Button>
                               )}
                             </PaginationItem>
                           )
                         )}
 
                         <PaginationItem>
-                          <button
+                          <Button
                             onClick={() =>
                               setCurrentPage((prev) =>
                                 Math.min(prev + 1, totalPages)
                               )
                             }
                             disabled={currentPage === totalPages}
+                            variant="ghost"
                             className={`px-3 py-1 text-sm font-medium ${
                               currentPage === totalPages
                                 ? "text-gray-300 cursor-not-allowed"
@@ -594,7 +604,7 @@ export default function SubscriptionsPage() {
                             }`}
                           >
                             &gt;
-                          </button>
+                          </Button>
                         </PaginationItem>
                       </PaginationContent>
                     </Pagination>
@@ -649,12 +659,14 @@ export default function SubscriptionsPage() {
               className="bg-white w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-md shadow-sm relative border border-gray-100"
               onClick={(e) => e.stopPropagation()}
             >
-              <button
+              <Button
                 onClick={() => setIsFormOpen(false)}
-                className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 z-10"
+                variant="link"
+                className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 z-10 cursor-pointer [text-decoration:none] hover:[text-decoration:none]"
               >
                 ✕
-              </button>
+              </Button>
+
               <div className="px-6 py-10 md:px-10">
                 <SubscriptionForm
                   amount={amount}
