@@ -13,38 +13,42 @@ interface PieData {
 const ComparisonPage = () => {
   const [amountData, setAmountData] = useState<PieData[]>([]);
   const [categoryData, setCategoryData] = useState<PieData[]>([]);
+  const [loading, setLoading] = useState(true); // ローディング状態
+  const [error, setError] = useState<string | null>(null); // エラー状態
 
   useEffect(() => {
-    // 仮の API fetch
     const fetchData = async () => {
-      // ここで実際の API を fetch する
-      // 例: const res = await fetch("/api/comparison");
-      // const json = await res.json();
+      try {
+        setLoading(true); // 追加: ローディング状態を true に
+        setError(null); // 追加: エラー状態をクリア
 
-      // サンプルデータ
-      setAmountData([
-        { name: "～999円", value: 10 },
-        { name: "～1,999円", value: 20 },
-        { name: "～2,999円", value: 15 },
-        { name: "～3,999円", value: 8 },
-        { name: "5,000円～", value: 5 },
-      ]);
-      setCategoryData([
-        { name: "あいうえおかきくけこ", value: 500 },
-        { name: "たちつてとなにぬねの", value: 300 },
-        { name: "ミュージック", value: 200 },
-        { name: "カテゴリー", value: 100 },
-      ]);
+        // fetch 部分はそのまま
+        const res = await fetch("/api/comparison");
+        if (!res.ok) throw new Error(`APIエラー: ${res.status}`);
+
+        const json = await res.json();
+        // API の返却形式に応じてデータをセット
+        setAmountData(json.amountData);
+        setCategoryData(json.categoryData);
+      } catch (err: any) {
+        console.error(err);
+        setError(err.message || "データ取得エラー"); // エラー表示
+      } finally {
+        setLoading(false); // ローディング終了
+      }
     };
 
     fetchData();
   }, []);
 
+  if (loading) return <p className="text-center mt-10">読み込み中...</p>;
+  if (error) return <p className="text-center mt-10 text-red-500">{error}</p>;
+
   return (
     <div className="container mx-auto px-6">
       <div className="mt-5 mb-30 flex flex-col">
         <div className="sm:w-2/3 w-full mx-auto">
-          <div className="flex flex-col xl:flex-row justify-between items-start gap-x-8 gap-y-15 ">
+          <div className="flex flex-col xl:flex-row justify-between items-stretch gap-x-8 gap-y-15 ">
             {/* 金額別 */}
             <div className="w-full xl:w-1/2  rounded-md shadow-sm border">
               <p className="text-center mt-2">金額別</p>
