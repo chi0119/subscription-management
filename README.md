@@ -1,36 +1,131 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# サブスク管理アプリ
 
-## Getting Started
+利用しているサブスクリプション（定期課金）を一覧・管理できるアプリです。  
+今月の合計金額、月の平均金額を確認できます。
 
-First, run the development server:
+---
+
+## 開発の目的
+
+サブスクリプションでどのくらい月に支出しているか把握して、
+無駄な支出を見直すことを目的としています。
+
+---
+
+## 主な機能
+
+- ログイン／ログアウト
+- サブスクの登録・更新・削除
+- 今月の合計金額、月の平均金額の表示
+- カテゴリーの登録・編集・削除
+- 金額別、カテゴリー別の円グラブ表示
+- レスポンシブデザイン対応
+
+---
+
+## 使用技術
+
+| 分類 | 技術 |
+|------|------|
+| フレームワーク | Next.js (App Router) |
+| フロントエンドライブラリ | React |
+| 言語 | TypeScript |
+| データベース | PostgreSQL（Supabase） |
+| ORM | Prisma |
+| スタイリング | Tailwind CSS, shadcn/ui |
+| 認証 | NextAuth.js |
+| 通知 | Sonner |
+| アイコン | lucide-react |
+| グラフ | Recharts |
+
+---
+
+## 使用技術の選定理由
+
+### フロントエンドを採用した理由
+- PC・スマホを問わず、どのデバイスからでも快適に利用できる環境を提供するため
+- APIとのスムーズな連携により、ユーザーの操作に素早く反応する画面を作るため
+
+### Reactを採用した理由
+- コンポーネントの再利用性が高く、保守性に優れているため
+- 豊富なライブラリ（フォーム、グラフ、UIコンポーネントなど）が活用できるため
+
+### Next.jsを採用した理由
+- フロントとバックエンドの処理を一元管理できるため
+- App Routerを活用し、快適なユーザー体験を実現するため
+- API Routesを利用してバックエンド処理を統合できるため
+
+### Tailwind CSSを採用した理由
+- カスタマイズ性と一貫性を両立できるため
+- レスポンシブ対応を容易に実装できるため
+
+### shadcn/uiを採用した理由
+- Tailwind CSSとの相性が良く、デザインの統一ができるため
+- よく使うUIパーツ（ダイアログ、トースト、セレクトなど）が標準実装されているため
+
+### Rechartsを採用した理由
+- Reactで扱いやすく、円グラフ描画ができるため
+
+---
+
+## 支払いサイクルのマスタについて
+
+支払いサイクルのマスタは、 
+一般的なサブスクリプションの支払い間隔を基にして、 
+「30日ごと」、「1ヶ月ごと」～「12ヶ月ごと」の固定マスタとしています。
+
+---
+
+## 支払い方法のマスタについて
+
+支払い方法のマスタは、  
+一般的なサブスクリプションの支払い方法を基にして、
+「クレジットカード」、「キャリア決済」などの固定マスタとしています。
+
+---
+
+## 環境変数
+
+`.env.example` に設定例があります。  
+以下の値を自分のSupabaseやNextAuth設定に合わせて入力します：
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+DATABASE_URL=
+NEXTAUTH_SECRET=
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## セットアップ手順
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. リポジトリをクローン
+```bash
+git clone https://github.com/chi0119/subscription-management.git
+cd subscription-management
+```
+2. 依存関係をインストール
+```bash
+npm install
+```
+3. Prismaのマイグレーションを「実行」
+```bash
+npx prisma migrate dev
+```
+4. 開発サーバーを起動
+```bash
+npm run dev
+```
+5. ブラウザで開く
 
-## Learn More
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## デモアカウント
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+デモ用アカウントを使用して、アプリの全機能を確認できます。  
+（登録・編集・削除も可能です）
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **メールアドレス：** demo@example.com  
+- **パスワード：** password1234  

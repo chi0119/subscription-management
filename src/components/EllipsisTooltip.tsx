@@ -7,12 +7,10 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 
-/**
- * テキストが省略（ellipsis）されているときだけ Tooltip を表示するコンポーネント
- *
- * @param text - 表示したいテキスト
- * @param maxWidth - 省略される最大幅（デフォルト: 150px）
- */
+// テキストが省略（ellipsis）されているときだけ Tooltip を表示するコンポーネント
+//  @param text - 表示したいテキスト
+//  @param maxWidth - 省略される最大幅（デフォルト: 150px）
+
 export const EllipsisTooltip: React.FC<{
   text?: string | null | undefined;
   maxWidth?: string;

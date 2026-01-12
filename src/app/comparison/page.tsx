@@ -13,28 +13,27 @@ interface PieData {
 const ComparisonPage = () => {
   const [amountData, setAmountData] = useState<PieData[]>([]);
   const [categoryData, setCategoryData] = useState<PieData[]>([]);
-  const [loading, setLoading] = useState(true); // ローディング状態
-  const [error, setError] = useState<string | null>(null); // エラー状態
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoading(true); // 追加: ローディング状態を true に
-        setError(null); // 追加: エラー状態をクリア
+        setLoading(true);
+        setError(null);
 
-        // fetch 部分はそのまま
         const res = await fetch("/api/comparison");
         if (!res.ok) throw new Error(`APIエラー: ${res.status}`);
 
         const json = await res.json();
-        // API の返却形式に応じてデータをセット
+
         setAmountData(json.amountData);
         setCategoryData(json.categoryData);
       } catch (err: any) {
         console.error(err);
-        setError(err.message || "データ取得エラー"); // エラー表示
+        setError(err.message || "データ取得エラー");
       } finally {
-        setLoading(false); // ローディング終了
+        setLoading(false);
       }
     };
 
