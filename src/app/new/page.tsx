@@ -29,10 +29,9 @@ const NewSubscriptionPage = () => {
 
   // マスターデータ取得
   useEffect(() => {
-    // 認証状態の変化を監視
     const { data: listener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        if (!session?.user) return; // ログインしていなければ何もしない
+        if (!session?.user) return;
 
         const userId = session.user.id;
 
@@ -51,7 +50,6 @@ const NewSubscriptionPage = () => {
 
         setCategories(cat || []);
 
-        // payment_cycles と payment_methods
         const { data: cyc } = await supabase
           .from("payment_cycles")
           .select("id, payment_cycle_name")

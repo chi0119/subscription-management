@@ -20,6 +20,9 @@ export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isError, setIsError] = useState(false);
 
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+
   useEffect(() => {
     const message = searchParams.get("message");
     if (message === "login-required") {

@@ -35,8 +35,6 @@ export default function RootLayout({
 
             {/* トースト通知 */}
             <Toaster position="top-center" />
-
-            {/* Footerなどを後で追加 */}
           </SubscriptionProvider>
         </NextAuthProvider>
       </body>
