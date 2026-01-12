@@ -4,7 +4,6 @@ import { SubscriptionForm } from "@/components/subscription/SubscriptionForm";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { supabase } from "@/lib/supabaseClient";
 import { PageHeader } from "@/components/page-header";
 
 const NewSubscriptionPage = () => {
@@ -29,46 +28,32 @@ const NewSubscriptionPage = () => {
 
   // マスターデータ取得
   useEffect(() => {
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (!session?.user) return;
+    const fetchMasters = async () => {
+      try {
+        const res = await fetch("/api/subscriptions/master");
 
-        const userId = session.user.id;
-
-        // カテゴリ取得（自分のユーザIDで絞る）
-        const { data: cat, error: catError } = await supabase
-          .from("categories")
-          .select("id, category_name")
-          .eq("user_id", userId)
-          .is("deleted_at", null)
-          .order("id");
-
-        if (catError) {
-          toast.error("カテゴリの読み込みに失敗しました");
+        if (res.status === 401) {
+          toast.error("ログインが必要です");
+          router.push("/signin");
           return;
         }
 
-        setCategories(cat || []);
+        if (!res.ok) {
+          toast.error("マスターデータの取得に失敗しました");
+          return;
+        }
 
-        const { data: cyc } = await supabase
-          .from("payment_cycles")
-          .select("id, payment_cycle_name")
-          .order("id");
-
-        const { data: met } = await supabase
-          .from("payment_methods")
-          .select("id, payment_method_name")
-          .order("id");
-
-        setPaymentCycles(cyc || []);
-        setPaymentMethods(met || []);
+        const data = await res.json();
+        setCategories(data.categories || []);
+        setPaymentCycles(data.paymentCycles || []);
+        setPaymentMethods(data.paymentMethods || []);
+      } catch (error) {
+        console.error(error);
+        toast.error("通信エラーが発生しました");
       }
-    );
-
-    // クリーンアップ
-    return () => {
-      listener.subscription.unsubscribe();
     };
+
+    fetchMasters();
   }, []);
 
   // 登録処理
