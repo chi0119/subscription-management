@@ -636,7 +636,7 @@ export default function SubscriptionsPage() {
                 </p>
                 <p className="text-gray-400 text-sm mt-1">
                   <Link
-                    href="/subscriptions/new"
+                    href="/new"
                     className="text-emerald-600 hover:underline"
                   >
                     新規登録ページ

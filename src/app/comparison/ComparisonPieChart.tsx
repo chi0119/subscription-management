@@ -20,6 +20,7 @@ const MODERN_COLORS = [
   "#60a5fa", // blue-400
   "#a3e635", // lime-400
   "#f472b6", // pink-400
+  "#c084fc", // purple-400
 ];
 
 // 金額別 ラベル
@@ -28,6 +29,7 @@ const AMOUNT_ORDER = [
   "～1,999円",
   "～2,999円",
   "～3,999円",
+  "～4,999円",
   "5,000円～",
 ];
 
@@ -148,6 +150,11 @@ const ComparisonPieChart: React.FC<ComparisonPieChartProps> = ({
       </ul>
     );
   };
+
+  // データが0件の場合、描画しない
+  if (!data || data.length === 0) {
+    return null;
+  }
 
   return (
     <div
