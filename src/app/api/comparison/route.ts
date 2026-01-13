@@ -49,6 +49,11 @@ export async function GET(req: Request) {
         .length,
     },
     {
+      name: "～4,999円",
+      value: subscriptions.filter((s) => s.amount > 3999 && s.amount <= 4999)
+        .length,
+    },
+    {
       name: "5,000円～",
       value: subscriptions.filter((s) => s.amount >= 5000).length,
     },

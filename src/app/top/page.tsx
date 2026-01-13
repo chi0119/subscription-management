@@ -142,70 +142,34 @@ export default function TopPage() {
                 ) : (
                   /* map で表示 */
                   /* 768px以上: 5行×2列、768px未満: 1列 表示 */
-                  <div className="flex flex-col md:flex-row gap-4 mt-5">
-                    {/* 左列 */}
-                    <div className="flex flex-col gap-2 flex-1">
-                      {currentSubscriptions
-                        ?.slice()
-                        .sort((a, b) => a.payment_date - b.payment_date)
-                        .slice(0, Math.ceil(currentSubscriptions.length / 2))
-                        .map((sub: any) => (
-                          <Card
-                            key={sub.id}
-                            className="rounded-md shadow-xs py-1"
-                          >
-                            <div className="flex justify-between items-center md:py-2 px-3 py-0">
-                              <p className="md:text-base text-sm text-gray-600">
-                                {sub.subscription_name}
-                              </p>
-                              <div className="flex items-baseline gap-3 shrink-0">
-                                <p className="text-[10px] md:text-xs text-gray-400">
-                                  ({sub.payment_date}日)
-                                </p>
-                                <p className="md:text-base text-sm whitespace-nowrap text-gray-600">
-                                  {(
-                                    sub.amount *
-                                    (sub._thisMonthDays?.length || 1)
-                                  ).toLocaleString()}
-                                  円
-                                </p>
-                              </div>
-                            </div>
-                          </Card>
-                        ))}
-                    </div>
 
-                    {/* 右列 */}
-                    <div className="flex flex-col gap-2 flex-1 mt-2 md:mt-0">
-                      {currentSubscriptions
-                        ?.slice()
-                        .sort((a, b) => a.payment_date - b.payment_date)
-                        .slice(Math.ceil(currentSubscriptions.length / 2))
-                        .map((sub: any) => (
-                          <Card
-                            key={sub.id}
-                            className="rounded-md shadow-xs py-1"
-                          >
-                            <div className="flex justify-between items-center md:py-2 px-3 py-0">
-                              <p className="md:text-base text-sm text-gray-600">
-                                {sub.subscription_name}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-5">
+                    {currentSubscriptions
+                      ?.slice()
+                      .sort((a, b) => a.payment_date - b.payment_date)
+                      .map((sub: any) => (
+                        <Card
+                          key={sub.id}
+                          className="rounded-md shadow-xs py-1"
+                        >
+                          <div className="flex justify-between items-center md:py-2 px-3 py-0">
+                            <p className="md:text-base text-sm text-gray-600">
+                              {sub.subscription_name}
+                            </p>
+                            <div className="flex items-baseline gap-3 shrink-0">
+                              <p className="text-[10px] md:text-xs text-gray-400">
+                                ({sub.payment_date}日)
                               </p>
-                              <div className="flex items-baseline gap-3 shrink-0">
-                                <p className="text-[10px] md:text-xs text-gray-400">
-                                  ({sub.payment_date}日)
-                                </p>
-                                <p className="md:text-base text-sm whitespace-nowrap text-gray-600">
-                                  {(
-                                    sub.amount *
-                                    (sub._thisMonthDays?.length || 1)
-                                  ).toLocaleString()}
-                                  円
-                                </p>
-                              </div>
+                              <p className="md:text-base text-sm whitespace-nowrap text-gray-600">
+                                {(
+                                  sub.amount * (sub._thisMonthDays?.length || 1)
+                                ).toLocaleString()}
+                                円
+                              </p>
                             </div>
-                          </Card>
-                        ))}
-                    </div>
+                          </div>
+                        </Card>
+                      ))}
                   </div>
                 )}
               </div>

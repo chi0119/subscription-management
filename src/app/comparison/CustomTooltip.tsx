@@ -10,14 +10,6 @@ interface CustomTooltipProps {
 const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload }) => {
   if (active && payload && payload.length) {
     const name = payload[0].payload.name;
-    const value = payload[0].value;
-
-    const total = payload.reduce(
-      (sum: number, entry: { value: number }) => sum + entry.value,
-      0
-    );
-
-    const percent = total > 0 ? ((value / total) * 100).toFixed(1) : "0";
 
     return (
       <div
