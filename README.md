@@ -86,8 +86,7 @@
 
 ## 環境変数
 
-`.env.example` に設定例があります。  
-以下の値を自分のSupabaseやNextAuth設定に合わせて入力します：
+以下の値を `.env.local` に設定してください。  
 
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=
