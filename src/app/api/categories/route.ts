@@ -1,4 +1,4 @@
-import { PrismaClient } from "@/generated/prisma/client";
+import { PrismaClient } from "../../../generated/prisma/client";
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
@@ -20,7 +20,7 @@ export async function GET() {
     },
   });
 
-  const safeCategories = categories.map((C) => ({
+  const safeCategories = categories.map((C: (typeof categories)[number]) => ({
     ...C,
     id: C.id.toString(),
     user_id: C.user_id.toString(),
