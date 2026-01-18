@@ -1,9 +1,7 @@
-import { PrismaClient } from "../../../generated/prisma/client";
+import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
-
-const prisma = new PrismaClient();
 
 // カテゴリー 一覧取得
 export async function GET() {
@@ -79,7 +77,7 @@ export async function POST(req: Request) {
   } catch (error) {
     return NextResponse.json(
       { error: "DB Error", details: String(error) },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

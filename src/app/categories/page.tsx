@@ -121,12 +121,16 @@ const CategoriesPage = () => {
       const refreshRes = await fetch("/api/categories");
       if (refreshRes.ok) {
         const data = await refreshRes.json();
+
+        // テスト用
+        console.log("Fetched data:", data);
+
         setCategories(
           data.map((c: any) => ({
             id: String(c.id),
             user_id: String(c.user_id),
-            name: c.category_name,
-            category_name: c.category_name,
+            name: c.category_name || c.name || "",
+            category_name: c.category_name || c.name || "",
             deleted: false,
           }))
         );
