@@ -3,12 +3,6 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { useSubscription } from "@/contexts/SubscriptionContext";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { WalletCards } from "lucide-react";
 
 export default function TopPage() {
@@ -26,12 +20,10 @@ export default function TopPage() {
           <div className="flex flex-col items-center">
             <div className="sm:w-2/3 w-full">
               {/* 今月の合計金額*/}
-
-              <Card className=" w-full bg-linear-to-b from-lime-100 to-emerald-200 text-center shadow-md border border-lime-50 text-gray-600">
-                <CardContent className="py-2 md:py-10 flex flex-col justify-center items-center px-5 gap-x-10">
-                  {/* 768px以上: 横並び、768px未満: 縦並び 表示 */}
+              <Card className="w-full bg-linear-to-b from-lime-100 to-emerald-200 text-center shadow-md border border-lime-50 text-gray-600">
+                <CardContent className="py-6 md:py-10 flex flex-col justify-center items-center px-5 relative">
                   <div className="flex flex-wrap justify-center items-center gap-4 md:flex-row md:gap-x-10">
-                    <p className="lg:text-4xl md:text-3xl text-3xl whitespace-nowrap">
+                    <p className="lg:text-4xl md:text-3xl text-2xl whitespace-nowrap">
                       今月の合計金額
                     </p>
                     {isLoading ? (
@@ -55,10 +47,12 @@ export default function TopPage() {
                         </span>
                       </div>
                     ) : (
-                      <p className="lg:text-4xl md:text-3xl text-3xl font-bold">{`${currentMonthTotal.toLocaleString()}円`}</p>
+                      <p className="lg:text-4xl md:text-3xl text-3xl font-bold">
+                        {`${currentMonthTotal.toLocaleString()}円`}
+                      </p>
                     )}
                   </div>
-                  <p className="pt-1 text-center text-gray-500 text-sm mt-2">
+                  <p className="absolute bottom-0 md:bottom-2 left-0 right-0 text-center text-gray-500 text-sm">
                     ※今月支払いのサブスク合計金額です
                   </p>
                 </CardContent>
@@ -67,20 +61,21 @@ export default function TopPage() {
               {/* 月の平均金額 */}
               <div className="pt-5 flex justify-end">
                 <Card className="w-auto text-center py-2 rounded-md shadow-xs">
-                  <div className="flex flex-col justify-end pt-1">
-                    <div className="flex justify-between items-center px-4 py-0 text-gray-600">
+                  <div className="flex flex-col">
+                    <div className="flex justify-start items-center px-4 py-0 text-gray-600 gap-x-0">
                       <p className="text-sm md:text-base whitespace-nowrap leading-none text-left">
                         月の平均金額
                       </p>
+
                       {/* スピナーを表示 */}
-                      <div className="text-sm md:text-base leading-none flex justify-end items-center min-w-[90px] h-5">
+                      <div className="text-sm md:text-base leading-none flex justify-end items-center min-w-[80px] h-5">
                         {isLoading ? (
-                          <div className="flex items-center gap-2 text-emerald-600">
+                          <div className="flex items-center gap-1 text-emerald-600">
                             <svg
                               className="animate-spin"
                               xmlns="http://www.w3.org/2000/svg"
-                              width="16"
-                              height="16"
+                              width="12"
+                              height="12"
                               viewBox="0 0 24 24"
                               fill="none"
                               stroke="currentColor"
@@ -90,7 +85,7 @@ export default function TopPage() {
                             >
                               <path d="M21 12a9 9 0 1 1-6.219-8.56" />
                             </svg>
-                            <span className="ext-xs text-gray-500 whitespace-nowrap">
+                            <span className="text-xs text-gray-500 whitespace-nowrap">
                               計算中...
                             </span>
                           </div>
@@ -99,7 +94,7 @@ export default function TopPage() {
                         )}
                       </div>
                     </div>
-                    <p className="pt-1 text-gray-500 text-xs mt-1 pr-1">
+                    <p className="text-gray-500 text-xs px-4 text-left mt-1">
                       ※1ヶ月あたりの平均金額です
                     </p>
                   </div>
@@ -146,7 +141,11 @@ export default function TopPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-5">
                     {currentSubscriptions
                       ?.slice()
-                      .sort((a, b) => a.payment_date - b.payment_date)
+                      .sort((a, b) => {
+                        const dayA = a._thisMonthDays?.[0] || 0;
+                        const dayB = b._thisMonthDays?.[0] || 0;
+                        return dayA - dayB;
+                      })
                       .map((sub: any) => (
                         <Card
                           key={sub.id}
@@ -158,7 +157,11 @@ export default function TopPage() {
                             </p>
                             <div className="flex items-baseline gap-3 shrink-0">
                               <p className="text-[10px] md:text-xs text-gray-400">
-                                ({sub.payment_date}日)
+                                (
+                                {sub._thisMonthDays
+                                  ?.map((d: number) => `${d}日`)
+                                  .join(", ")}
+                                )
                               </p>
                               <p className="md:text-base text-sm whitespace-nowrap text-gray-600">
                                 {(
