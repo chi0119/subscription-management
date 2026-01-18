@@ -17,6 +17,7 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
+  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -66,8 +67,8 @@ export const SubscriptionForm = ({
       ? "更新中..."
       : "登録中..."
     : isEdit
-    ? "更新"
-    : "登録";
+      ? "更新"
+      : "登録";
 
   const titleText = isEdit ? "この内容で更新します" : "この内容を登録します";
   const successText = isEdit ? "更新が完了しました" : "登録が完了しました";
@@ -108,7 +109,7 @@ export const SubscriptionForm = ({
 
     // カテゴリーの存在チェック
     const categoryExists = categories.some(
-      (cat) => cat.id.toString() === formData.category_id
+      (cat) => cat.id.toString() === formData.category_id,
     );
 
     if (!formData.category_id || !categoryExists) {
@@ -119,7 +120,7 @@ export const SubscriptionForm = ({
           <span className="text-[11px] font-normal leading-tight mt-1 opacity-90">
             ※以前のカテゴリーは削除されています
           </span>
-        </div>
+        </div>,
       );
       setFormData((prev) => ({ ...prev, category_id: "" }));
       return;
@@ -167,18 +168,7 @@ export const SubscriptionForm = ({
         ? await onCheckDuplicate(formData.subscription_name)
         : false;
 
-      // サブスク名の重複 トーストで表示する場合
-      // if (isDuplicate) {
-      //   toast.error(
-      //     <div className="flex flex-col">
-      //       <span>サブスク名が既に登録されています。</span>
-      //       <span className="text-sm opacity-80">別の名前にしてください</span>
-      //     </div>
-      //   );
-      //   return;
-      // }
-
-      // サブスク名の重複 ダイアログで表示する場合
+      // サブスク名の重複 ダイアログで表示
       if (isDuplicate) {
         setIsDuplicateDialogOpen(true);
         return;
@@ -285,7 +275,7 @@ export const SubscriptionForm = ({
         </Label>
         <div
           className={getContainerClass(
-            isError && !formData.subscription_name.trim()
+            isError && !formData.subscription_name.trim(),
           )}
         >
           <Input
@@ -342,7 +332,7 @@ export const SubscriptionForm = ({
         </Label>
         <div
           className={`flex items-center h-10 ${getContainerClass(
-            isError && (!amount || amount === "0")
+            isError && (!amount || amount === "0"),
           )}`}
         >
           <Input
@@ -350,7 +340,6 @@ export const SubscriptionForm = ({
             value={amount}
             onChange={handleAmountChange}
             placeholder="0"
-            // ring-0 と focus-visible:ring-0 を両方入れて内側の線を消去
             className="text-right border-none shadow-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none h-full bg-transparent"
           />
           <span className="inline-flex items-center justify-center px-3 text-gray-600 sm:text-sm h-full">
@@ -510,24 +499,28 @@ export const SubscriptionForm = ({
               ? "更新中..."
               : "登録中..."
             : isEdit
-            ? "更新"
-            : "登録"}
+              ? "更新"
+              : "登録"}
         </Button>
 
-        {/* サブスク名の重複 ダイアログで表示する場合 */}
         {/* 重複確認ダイアログ */}
         <AlertDialog
           open={isDuplicateDialogOpen}
           onOpenChange={setIsDuplicateDialogOpen}
         >
-          <AlertDialogContent className="w-full max-w-md sm:max-w-lg mx-auto">
+          <AlertDialogContent className="w-full max-w-sm sm:max-w-md mx-auto">
             <AlertDialogHeader className="mb-4">
-              <AlertDialogTitle className="text-center text-base font-normal text-gray-600">
+              <AlertDialogTitle className="sm:text-base text-sm font-bold text-gray-600 mb-4 text-center">
+                重複エラー
+              </AlertDialogTitle>
+
+              <AlertDialogDescription className="text-center sm:text-base text-sm font-normal text-gray-600">
                 「{formData.subscription_name}」は既に登録されています
                 <br />
                 別のサブスク名に変更してください
-              </AlertDialogTitle>
+              </AlertDialogDescription>
             </AlertDialogHeader>
+
             <AlertDialogFooter className="flex justify-center gap-3 sm:justify-center flex-row">
               <AlertDialogCancel>閉じる</AlertDialogCancel>
             </AlertDialogFooter>
@@ -539,14 +532,18 @@ export const SubscriptionForm = ({
           open={isConfirmDialogOpen}
           onOpenChange={setIsConfirmDialogOpen}
         >
-          <AlertDialogContent className="w-full max-w-md sm:max-w-lg mx-auto">
+          <AlertDialogContent className="w-full max-w-sm sm:max-w-lg mx-auto">
             <AlertDialogHeader className="mb-4">
-              <AlertDialogTitle className="text-center text-base font-normal text-gray-600">
+              <AlertDialogTitle className="sm:text-base text-sm font-bold text-gray-600 mb-4 text-center">
+                登録確認
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-center sm:text-base text-sm font-normal text-gray-600">
                 この内容を登録します
                 <br />
                 よろしいでしょうか
-              </AlertDialogTitle>
+              </AlertDialogDescription>
             </AlertDialogHeader>
+
             <AlertDialogFooter className="flex justify-center gap-3 sm:justify-center flex-row ">
               <AlertDialogAction
                 onClick={handleRegister}
@@ -573,9 +570,14 @@ export const SubscriptionForm = ({
         <AlertDialog open={isDoneDialogOpen} onOpenChange={setIsDoneDialogOpen}>
           <AlertDialogContent className="w-full max-w-md sm:max-w-lg mx-auto">
             <AlertDialogHeader className="mb-4">
-              <AlertDialogTitle className="text-center text-base font-normal text-gray-600">
-                登録が完了しました
+              <AlertDialogTitle className="sm:text-base text-sm font-bold text-gray-600 mb-4 text-center">
+                登録完了
               </AlertDialogTitle>
+              <AlertDialogDescription className="text-center sm:text-base text-sm font-normal text-gray-600">
+                登録が完了しました
+                <br />
+                一覧で確認できます
+              </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter className="flex justify-center gap-3 sm:justify-center flex-row ">
               <Button
