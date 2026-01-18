@@ -70,16 +70,16 @@
 
 ## 支払いサイクルのマスタについて
 
-支払いサイクルのマスタは、 
-一般的なサブスクリプションの支払い間隔を基にして、 
+支払いサイクルのマスタは、<br>
+一般的なサブスクリプションの支払い間隔を基にして、<br>
 「30日ごと」、「1ヶ月ごと」～「12ヶ月ごと」の固定マスタとしています。
 
 ---
 
 ## 支払い方法のマスタについて
 
-支払い方法のマスタは、  
-一般的なサブスクリプションの支払い方法を基にして、
+支払い方法のマスタは、<br>
+一般的なサブスクリプションの支払い方法を基にして、<br>
 「クレジットカード」、「キャリア決済」などの固定マスタとしています。
 
 ---
@@ -87,12 +87,20 @@
 ## 環境変数
 
 以下の値を `.env.local` に設定してください。  
+※ 実行環境（Vercel等）との接続互換性を確保するため、<br>
+`DATABASE_URL` の末尾に `&sslmode=no-verify` の付与が必要な場合があります。
 
 ```bash
+# Supabase設定
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
+
+# データベース接続設定 (Prisma)
 DATABASE_URL=
+
+# 認証設定 (NextAuth.js)
 NEXTAUTH_SECRET=
+NEXTAUTH_URL=http://localhost:3000
 ```
 
 ---
@@ -108,15 +116,19 @@ cd subscription-management
 ```bash
 npm install
 ```
-3. Prismaのマイグレーションを「実行」
+1. Prisma Clientの生成
 ```bash
-npx prisma migrate dev
+npx prisma generate
 ```
-4. 開発サーバーを起動
+1. データベースの同期
+```bash
+npx prisma db push
+```
+1. 開発サーバーを起動
 ```bash
 npm run dev
 ```
-5. ブラウザで開く
+1. ブラウザで開く
 
 
 ---
