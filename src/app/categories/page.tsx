@@ -23,6 +23,7 @@ const CategoriesPage = () => {
       try {
         const res = await fetch("/api/categories");
         if (!res.ok) throw new Error("Failed to fetch");
+
         const data = (await res.json()) as CategoryUI[];
 
         setCategories(
@@ -32,10 +33,10 @@ const CategoriesPage = () => {
             name: c.category_name ?? "",
             category_name: c.category_name ?? "",
             deleted: false,
-          }))
+          })),
         );
       } catch (error) {
-        console.error(error);
+        console.error("カテゴリーの取得に失敗しました:", error);
       } finally {
         setLoading(false);
       }
@@ -53,7 +54,7 @@ const CategoriesPage = () => {
         <div>
           <div className="font-bold">カテゴリーが空欄です</div>
           <div className="text-xs opacity-90">入力してください</div>
-        </div>
+        </div>,
       );
       return;
     }
@@ -97,7 +98,7 @@ const CategoriesPage = () => {
         <div>
           <div className="font-bold">カテゴリーが空欄です</div>
           <div className="text-xs opacity-90">入力してください</div>
-        </div>
+        </div>,
       );
       return;
     }
@@ -132,7 +133,7 @@ const CategoriesPage = () => {
             name: c.category_name || c.name || "",
             category_name: c.category_name || c.name || "",
             deleted: false,
-          }))
+          })),
         );
       }
 
@@ -147,6 +148,7 @@ const CategoriesPage = () => {
   const activeCategories = categories.filter((c) => !c.deleted);
   const leftCategories = activeCategories.slice(0, 5);
   const rightCategories = activeCategories.slice(5);
+  const activeCount = activeCategories.length;
 
   // 共通フォーカススタイル
   const unifiedFocus =
@@ -207,7 +209,7 @@ const CategoriesPage = () => {
               {leftCategories.map((category, index) => {
                 if (category.deleted) return null;
                 const globalIndex = categories.findIndex(
-                  (c) => c.id === category.id
+                  (c) => c.id === category.id,
                 );
                 return (
                   <div
@@ -236,6 +238,12 @@ const CategoriesPage = () => {
                       variant="ghost"
                       size="icon"
                       onClick={() => handleDeleteCategory(globalIndex)}
+                      disabled={activeCount <= 1}
+                      className={
+                        activeCount <= 1
+                          ? "opacity-30 cursor-not-allowed"
+                          : "cursor-pointer"
+                      }
                     >
                       <Trash2 size={20} />
                     </Button>
@@ -249,7 +257,7 @@ const CategoriesPage = () => {
               {rightCategories.map((category) => {
                 if (category.deleted) return null;
                 const globalIndex = categories.findIndex(
-                  (c) => c.id === category.id
+                  (c) => c.id === category.id,
                 );
                 return (
                   <div key={category.id} className="flex items-center gap-3">
@@ -275,7 +283,12 @@ const CategoriesPage = () => {
                       variant="ghost"
                       size="icon"
                       onClick={() => handleDeleteCategory(globalIndex)}
-                      className="cursor-pointer"
+                      disabled={activeCount <= 1}
+                      className={
+                        activeCount <= 1
+                          ? "opacity-30 cursor-not-allowed"
+                          : "cursor-pointer"
+                      }
                     >
                       <Trash2 size={20} />
                     </Button>
@@ -288,6 +301,8 @@ const CategoriesPage = () => {
           {/* 注意書き */}
           <div className="text-red-500 mt-10 w-full sm:w-2/3 mx-auto text-sm">
             <p>
+              ※カテゴリーは、1つ以上登録されている必要があります。
+              <br />
               ※カテゴリーを「追加」または、「削除」した場合は、「更新」ボタンを押下してください。
               <br />
               &nbsp;「更新」ボタンを押下せず、ページを移動した場合、変更内容が更新されません。

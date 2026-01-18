@@ -11,18 +11,43 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const categories = await prisma.categories.findMany({
+  const userId = BigInt(session.user.id);
+
+  // カテゴリーを取得
+  let categories = await prisma.categories.findMany({
     where: {
-      user_id: BigInt(session.user.id),
+      user_id: userId,
       deleted_at: null,
     },
   });
 
-  const safeCategories = categories.map((C: (typeof categories)[number]) => ({
+  // データが0件の場合、デフォルトの3つをDBに保存して再取得
+  if (categories.length === 0) {
+    const defaultNames = ["動画", "音楽", "本・雑誌"];
+
+    await prisma.categories.createMany({
+      data: defaultNames.map((name) => ({
+        category_name: name,
+        user_id: userId,
+      })),
+    });
+
+    // 保存したデータを取得
+    categories = await prisma.categories.findMany({
+      where: {
+        user_id: userId,
+        deleted_at: null,
+      },
+    });
+  }
+
+  const safeCategories = categories.map((C) => ({
     ...C,
     id: C.id.toString(),
     user_id: C.user_id.toString(),
   }));
+
+  return NextResponse.json(safeCategories);
 
   return NextResponse.json(safeCategories);
 }
