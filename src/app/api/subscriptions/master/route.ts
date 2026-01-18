@@ -18,17 +18,40 @@ export async function GET() {
         getAll: () => cookieStore.getAll(),
         setAll: () => {},
       },
-    }
+    },
   );
 
   const userId = session.user.id;
 
-  const { data: categories } = await supabase
+  // カテゴリーを取得
+  let { data: categories } = await supabase
     .from("categories")
     .select("id, category_name")
     .eq("user_id", userId)
     .is("deleted_at", null)
     .order("id");
+
+  // データが0件の場合、デフォルトの3つをDBに保存して再取得
+  if (!categories || categories.length === 0) {
+    const defaultCategories = [
+      { category_name: "動画", user_id: userId },
+      { category_name: "音楽", user_id: userId },
+      { category_name: "本・雑誌", user_id: userId },
+    ];
+
+    // Supabaseで一括挿入
+    await supabase.from("categories").insert(defaultCategories);
+
+    // 挿入したデータを取得
+    const { data: refreshedCategories } = await supabase
+      .from("categories")
+      .select("id, category_name")
+      .eq("user_id", userId)
+      .is("deleted_at", null)
+      .order("id");
+
+    categories = refreshedCategories;
+  }
 
   const { data: paymentCycles } = await supabase
     .from("payment_cycles")
