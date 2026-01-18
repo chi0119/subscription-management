@@ -57,11 +57,12 @@ import { useSubscription } from "@/contexts/SubscriptionContext";
 import { EllipsisTooltip } from "@/components/EllipsisTooltip";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { AlertDialogDescription } from "@radix-ui/react-alert-dialog";
 
 // Supabaseクライアントの初期化
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || "",
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
 );
 
 export default function SubscriptionsPage() {
@@ -85,7 +86,7 @@ export default function SubscriptionsPage() {
           categories(category_name),
           payment_cycles(payment_cycle_name),
           payment_methods(payment_method_name)
-        `
+        `,
         )
         .eq("user_id", session.user.id)
         .order("created_at", { ascending: false });
@@ -211,7 +212,7 @@ export default function SubscriptionsPage() {
       const remainingTotalItems = subscriptions.length - 1;
       const newTotalPages = Math.max(
         1,
-        Math.ceil(remainingTotalItems / itemsPerPage)
+        Math.ceil(remainingTotalItems / itemsPerPage),
       );
 
       if (currentPage > newTotalPages) {
@@ -253,7 +254,7 @@ export default function SubscriptionsPage() {
 
   const currentSubscriptions = sortedSubscriptions.slice(
     indexOfFirstItem,
-    indexOfLastItem
+    indexOfLastItem,
   );
 
   // ページネーション (前後2ページ表示)
@@ -585,14 +586,14 @@ export default function SubscriptionsPage() {
                                 </Button>
                               )}
                             </PaginationItem>
-                          )
+                          ),
                         )}
 
                         <PaginationItem>
                           <Button
                             onClick={() =>
                               setCurrentPage((prev) =>
-                                Math.min(prev + 1, totalPages)
+                                Math.min(prev + 1, totalPages),
                               )
                             }
                             disabled={currentPage === totalPages}
@@ -683,7 +684,7 @@ export default function SubscriptionsPage() {
                     const isDuplicate = subscriptions.some(
                       (sub) =>
                         sub.subscription_name === name &&
-                        sub.id !== editingSubscription?.id
+                        sub.id !== editingSubscription?.id,
                     );
                     return isDuplicate;
                   }}
@@ -691,7 +692,7 @@ export default function SubscriptionsPage() {
                     try {
                       const rawAmount = parseInt(
                         String(values.amount).replace(/,/g, ""),
-                        10
+                        10,
                       );
 
                       const { error } = await supabase
@@ -740,11 +741,14 @@ export default function SubscriptionsPage() {
       >
         <AlertDialogContent className="w-full max-w-md sm:max-w-lg mx-auto">
           <AlertDialogHeader className="mb-4">
-            <AlertDialogTitle className="text-center text-base font-normal text-gray-600">
+            <AlertDialogTitle className="sm:text-base text-sm font-bold text-gray-600 mb-4 text-center">
+              削除確認
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center sm:text-base text-sm font-normal text-gray-600">
               登録内容を削除します
               <br />
               よろしいでしょうか
-            </AlertDialogTitle>
+            </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex justify-center gap-3 sm:justify-center flex-row ">
             <AlertDialogAction
