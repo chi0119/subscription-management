@@ -46,6 +46,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogDescription,
 } from "@/components/ui/alert-dialog";
 import {
   Category,
@@ -57,7 +58,6 @@ import { useSubscription } from "@/contexts/SubscriptionContext";
 import { EllipsisTooltip } from "@/components/EllipsisTooltip";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { AlertDialogDescription } from "@radix-ui/react-alert-dialog";
 
 // Supabaseクライアントの初期化
 const supabase = createClient(
@@ -73,6 +73,15 @@ export default function SubscriptionsPage() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
 
   const [isLoading, setIsLoading] = useState(true);
+
+  type SubscriptionsResponse = Omit<
+    Subscription,
+    "categories" | "payment_cycles" | "payment_methods"
+  > & {
+    categories: { category_name: string } | null;
+    payment_cycles: { payment_cycle_name: string } | null;
+    payment_methods: { payment_method_name: string } | null;
+  };
 
   const fetchSubscriptions = async () => {
     if (!session?.user?.id) return;
@@ -94,12 +103,17 @@ export default function SubscriptionsPage() {
       if (error) throw error;
 
       // 取得したデータを一覧表示用に変換
-      const formattedData: Subscription[] = (data || []).map((item: any) => ({
-        ...item,
-        category_name: item.categories?.category_name,
-        payment_cycle: item.payment_cycles?.payment_cycle_name,
-        payment_method: item.payment_methods?.payment_method_name,
-      }));
+      const formattedData: Subscription[] = (
+        (data as SubscriptionsResponse[]) || []
+      ).map((item) => {
+        const { categories, payment_cycles, payment_methods, ...rest } = item;
+        return {
+          ...rest,
+          category_name: categories?.category_name || "-",
+          payment_cycle: payment_cycles?.payment_cycle_name || "-",
+          payment_method: payment_methods?.payment_method_name || "-",
+        };
+      });
 
       setSubscriptions(formattedData || []);
 

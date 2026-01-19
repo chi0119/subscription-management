@@ -17,6 +17,12 @@ const CategoriesPage = () => {
   const [loading, setLoading] = useState(true);
   const [isError, setIsError] = useState(false);
 
+  interface ApiCategoryResponse {
+    id: number;
+    user_id: string;
+    category_name: string;
+  }
+
   // カテゴリーを取得
   useEffect(() => {
     const fetchCategories = async () => {
@@ -24,7 +30,7 @@ const CategoriesPage = () => {
         const res = await fetch("/api/categories");
         if (!res.ok) throw new Error("Failed to fetch");
 
-        const data = (await res.json()) as CategoryUI[];
+        const data = (await res.json()) as ApiCategoryResponse[];
 
         setCategories(
           data.map((c) => ({
@@ -121,17 +127,14 @@ const CategoriesPage = () => {
 
       const refreshRes = await fetch("/api/categories");
       if (refreshRes.ok) {
-        const data = await refreshRes.json();
-
-        // テスト用
-        console.log("Fetched data:", data);
+        const data = (await refreshRes.json()) as ApiCategoryResponse[];
 
         setCategories(
-          data.map((c: any) => ({
+          data.map((c) => ({
             id: String(c.id),
             user_id: String(c.user_id),
-            name: c.category_name || c.name || "",
-            category_name: c.category_name || c.name || "",
+            name: c.category_name,
+            category_name: c.category_name,
             deleted: false,
           })),
         );
@@ -140,7 +143,7 @@ const CategoriesPage = () => {
       toast.success("カテゴリーを更新しました");
     } catch (error) {
       console.error(error);
-      toast.success("更新に失敗しました", { duration: 1000 });
+      toast.error("更新に失敗しました", { duration: 1000 });
     }
   };
 

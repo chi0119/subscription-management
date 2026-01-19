@@ -4,19 +4,31 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
+import { Subscription } from "@/types/subscription";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
 );
 
 type SubscriptionContextType = {
   averageMonthlyAmount: number;
   currentMonthTotal: number;
-  currentSubscriptions: any[];
+  currentSubscriptions: SubscriptionSummary[];
   isLoading: boolean;
   refreshAverage: () => Promise<void>;
 };
+
+export type SubscriptionSummary = Pick<
+  Subscription,
+  | "id"
+  | "subscription_name"
+  | "amount"
+  | "contract_date"
+  | "payment_date"
+  | "payment_cycles"
+  | "_thisMonthDays"
+>;
 
 const SubscriptionContext = createContext<SubscriptionContextType | null>(null);
 
@@ -28,7 +40,9 @@ export const SubscriptionProvider = ({
   const { data: session } = useSession();
   const [averageMonthlyAmount, setAverageMonthlyAmount] = useState(0);
   const [currentMonthTotal, setCurrentMonthTotal] = useState(0);
-  const [currentSubscriptions, setCurrentSubscriptions] = useState<any[]>([]);
+  const [currentSubscriptions, setCurrentSubscriptions] = useState<
+    SubscriptionSummary[]
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchAverage = async () => {
@@ -44,9 +58,10 @@ export const SubscriptionProvider = ({
       // Supabaseからサブスクデータ取得
       const { data, error } = await supabase
         .from("subscriptions")
-        .select(
-          `id, subscription_name, amount, contract_date,payment_date, payment_cycles(payment_cycle_name)`
-        )
+        .select<
+          string,
+          SubscriptionSummary
+        >(`id, subscription_name, amount, contract_date,payment_date, payment_cycles(payment_cycle_name)`)
         .eq("user_id", session.user.id);
 
       if (error) throw error;
@@ -57,12 +72,13 @@ export const SubscriptionProvider = ({
         // 今月支払いが発生するか、または回数を返す関数
         // 30日ごとは「日数ベース」、他は「月ベース」で判定
 
-        const isDueThisMonth = (sub: any): number[] => {
+        const isDueThisMonth = (sub: SubscriptionSummary): number[] => {
           const cycleData = sub.payment_cycles;
           const cycleText =
             (Array.isArray(cycleData)
               ? cycleData[0]?.payment_cycle_name
-              : (cycleData as any)?.payment_cycle_name
+              : (cycleData as { payment_cycle_name: string })
+                  ?.payment_cycle_name
             )?.toString() || "";
 
           if (!sub.contract_date) return [];
@@ -73,10 +89,10 @@ export const SubscriptionProvider = ({
 
           // 今月の 1日 と 末日 を UTC で作成
           const firstDayOfMonth = new Date(
-            Date.UTC(today.getFullYear(), today.getMonth(), 1)
+            Date.UTC(today.getFullYear(), today.getMonth(), 1),
           );
           const lastDayOfMonth = new Date(
-            Date.UTC(today.getFullYear(), today.getMonth() + 1, 0)
+            Date.UTC(today.getFullYear(), today.getMonth() + 1, 0),
           );
 
           const paymentDays: number[] = [];
@@ -126,7 +142,7 @@ export const SubscriptionProvider = ({
         };
 
         // 今月の合計金額を計算
-        const currentTotal = data.reduce((sum, sub: any) => {
+        const currentTotal = data.reduce((sum, sub: SubscriptionSummary) => {
           // 今月の支払日を計算
           const pDays = isDueThisMonth(sub);
           sub._thisMonthDays = pDays;
@@ -136,29 +152,36 @@ export const SubscriptionProvider = ({
         }, 0);
 
         // 月の平均金額を計算（月割り）
-        const totalMonthlyAvg = data.reduce((sum, sub) => {
-          const cycleData = sub.payment_cycles;
-          const cycleText =
-            (Array.isArray(cycleData)
-              ? cycleData[0]?.payment_cycle_name
-              : (cycleData as any)?.payment_cycle_name
-            )?.toString() || "";
-          const cycleMatch = cycleText.match(/\d+/);
-          let interval = cycleMatch ? parseInt(cycleMatch[0], 10) : 1;
-          if (cycleText.includes("年")) interval = 12;
-          if (cycleText.includes("30日")) interval = 1;
+        const totalMonthlyAvg = data.reduce(
+          (sum: number, sub: SubscriptionSummary) => {
+            const cycleData = sub.payment_cycles;
+            const cycleText =
+              (Array.isArray(cycleData)
+                ? cycleData[0]?.payment_cycle_name
+                : (cycleData as { payment_cycle_name: string })
+                    ?.payment_cycle_name
+              )?.toString() || "";
+            const cycleMatch = cycleText.match(/\d+/);
+            let interval = cycleMatch ? parseInt(cycleMatch[0], 10) : 1;
+            if (cycleText.includes("年")) interval = 12;
+            if (cycleText.includes("30日")) interval = 1;
 
-          return sum + sub.amount / interval;
-        }, 0);
+            return sum + sub.amount / interval;
+          },
+          0,
+        );
 
         // 今月支払うサブスク一覧を抽出
         const filteredSubs = data
           .filter(
-            (sub: any) => sub._thisMonthDays && sub._thisMonthDays.length > 0
+            (sub: SubscriptionSummary) =>
+              !!(sub._thisMonthDays && sub._thisMonthDays.length > 0),
           ) // 1回以上支払いがあるもの
-          .sort((a: any, b: any) => {
+          .sort((a: SubscriptionSummary, b: SubscriptionSummary) => {
             // 保存しておいた日付配列の「1回目の日付」で並び替える
-            return a._thisMonthDays[0] - b._thisMonthDays[0];
+            const dayA = a._thisMonthDays?.[0] || 0;
+            const dayB = b._thisMonthDays?.[0] || 0;
+            return dayA - dayB;
           });
 
         // 状態を更新
@@ -193,7 +216,7 @@ export const SubscriptionProvider = ({
             table: "subscriptions",
             filter: `user_id=eq.${session.user.id}`,
           },
-          () => fetchAverage()
+          () => fetchAverage(),
         )
         .subscribe();
       return () => {

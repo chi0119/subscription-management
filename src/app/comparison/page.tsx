@@ -31,11 +31,15 @@ const ComparisonPage = () => {
 
         setAmountData(Array.isArray(json.amountData) ? json.amountData : []);
         setCategoryData(
-          Array.isArray(json.categoryData) ? json.categoryData : []
+          Array.isArray(json.categoryData) ? json.categoryData : [],
         );
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error(err);
-        setError(err.message || "データ取得エラー");
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("データ取得エラー");
+        }
       } finally {
         setLoading(false);
       }
