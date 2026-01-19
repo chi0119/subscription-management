@@ -4,6 +4,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { WalletCards } from "lucide-react";
+import { SubscriptionSummary } from "@/contexts/SubscriptionContext";
 
 export default function TopPage() {
   const {
@@ -146,7 +147,7 @@ export default function TopPage() {
                         const dayB = b._thisMonthDays?.[0] || 0;
                         return dayA - dayB;
                       })
-                      .map((sub: any) => (
+                      .map((sub: SubscriptionSummary) => (
                         <Card
                           key={sub.id}
                           className="rounded-md shadow-xs py-1"

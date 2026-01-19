@@ -12,9 +12,13 @@ export interface Subscription {
   payment_method_id?: number;
   payment_method?: string;
   notes?: string;
-  user_id: number;
+  user_id: number | string;
   created_at?: string;
   updated_at?: string;
+  payment_cycles?:
+    | { payment_cycle_name: string }
+    | { payment_cycle_name: string }[];
+  _thisMonthDays?: number[];
 }
 
 export interface Category {

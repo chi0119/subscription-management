@@ -1,6 +1,9 @@
 "use client";
 
-import { SubscriptionForm } from "@/components/subscription/SubscriptionForm";
+import {
+  SubscriptionForm,
+  SubscriptionSubmitData,
+} from "@/components/subscription/SubscriptionForm";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -57,7 +60,9 @@ const NewSubscriptionPage = () => {
   }, []);
 
   // 登録処理
-  const handleSubmit = async (formData: any): Promise<boolean> => {
+  const handleSubmit = async (
+    formData: SubscriptionSubmitData,
+  ): Promise<boolean> => {
     setIsSubmitting(true);
     try {
       const res = await fetch("/api/subscriptions", {
@@ -75,7 +80,7 @@ const NewSubscriptionPage = () => {
       if (!res.ok) {
         const errorData = await res.json();
         toast.error(
-          `登録に失敗しました: ${errorData.error || "エラーが発生しました"}`
+          `登録に失敗しました: ${errorData.error || "エラーが発生しました"}`,
         );
         return false;
       }
@@ -93,7 +98,7 @@ const NewSubscriptionPage = () => {
   const handleCheckDuplicate = async (name: string): Promise<boolean> => {
     try {
       const res = await fetch(
-        `/api/subscriptions/check-duplicate?name=${encodeURIComponent(name)}`
+        `/api/subscriptions/check-duplicate?name=${encodeURIComponent(name)}`,
       );
       if (!res.ok) return false;
       const data = await res.json();

@@ -1,15 +1,19 @@
 // 円グラフ ツールチップ
 
 import React from "react";
+import { TooltipProps } from "recharts";
 
-interface CustomTooltipProps {
-  active?: boolean;
-  payload?: any[];
+interface CustomTooltipProps extends TooltipProps<number, string> {
+  payload?: {
+    payload: {
+      name: string;
+    };
+  }[];
 }
 
 const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload }) => {
   if (active && payload && payload.length) {
-    const name = payload[0].payload.name;
+    const name = (payload[0].payload as { name: string }).name;
 
     return (
       <div

@@ -26,10 +26,21 @@ import { toast } from "sonner";
 import { Subscription } from "@/types/subscription";
 import { Loader2 } from "lucide-react";
 
+export type SubscriptionSubmitData = {
+  subscription_name: string;
+  category_id: number | null;
+  contract_date: string;
+  payment_cycle_id: number | null;
+  payment_date: number | null;
+  payment_method_id: number | null;
+  amount: number;
+  notes: string;
+};
+
 interface SubscriptionFormProps {
   amount: string;
   setAmount: (value: string) => void;
-  onSubmit: (formData: any) => Promise<boolean>;
+  onSubmit: (formData: SubscriptionSubmitData) => Promise<boolean>;
   onGoToList: () => void;
   onCheckDuplicate?: (name: string) => Promise<boolean>;
   initialData?: Subscription | null;
@@ -198,8 +209,10 @@ export const SubscriptionForm = ({
     try {
       setLoadingRegister(true);
 
-      const submitData = {
-        ...formData,
+      const submitData: SubscriptionSubmitData = {
+        subscription_name: formData.subscription_name,
+        contract_date: formData.contract_date,
+        notes: formData.notes,
         category_id: formData.category_id ? Number(formData.category_id) : null,
         payment_cycle_id: formData.payment_cycle_id
           ? Number(formData.payment_cycle_id)
