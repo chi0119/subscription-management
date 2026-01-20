@@ -61,7 +61,7 @@ const ComparisonPage = () => {
     <div className="container mx-auto px-6">
       <PageHeader
         title="比較"
-        description="登録しているサブスクを金額別・カテゴリ別に比較できます"
+        description="登録しているサブスクを金額別・カテゴリー別に比較できます"
       />
       <div className="mt-5 mb-30 flex flex-col">
         {loading ? (
@@ -129,10 +129,10 @@ const ComparisonPage = () => {
                 </div>
               </div>
 
-              {/* カテゴリ別 */}
+              {/* カテゴリー別 */}
               {/* lg:1024px xl:1280px */}
               <div className="w-full xl:w-1/2 ">
-                <p className="text-center mt-2">カテゴリ別</p>
+                <p className="text-center mt-2">カテゴリー別</p>
                 <div className=" border-gray-300 flex items-start justify-center text-gray-500 min-h-[400px] pb-2 xl:pb-10">
                   <ComparisonPieChart data={categoryData} type="category" />
                 </div>
