@@ -11,18 +11,21 @@ const MIN_PERCENT_FOR_INSIDE = 0.1;
 // ラベル最大文字数
 const MAX_NAME_LENGTH = 7;
 
-export const RenderCustomizedLabel = (props: PieLabelRenderProps) => {
-  const { cx, cy, midAngle, innerRadius, outerRadius, percent, name } = props;
+interface CustomizedLabelProps extends PieLabelRenderProps {
+  isMobile?: boolean;
+}
 
-  const [isMobile, setIsMobile] = useState(false);
-
-  // 1024px 未満はラベル非表示
-  useEffect(() => {
-    const checkScreen = () => setIsMobile(window.innerWidth < 1024);
-    checkScreen();
-    window.addEventListener("resize", checkScreen);
-    return () => window.removeEventListener("resize", checkScreen);
-  }, []);
+export const RenderCustomizedLabel = (props: CustomizedLabelProps) => {
+  const {
+    cx,
+    cy,
+    midAngle,
+    innerRadius,
+    outerRadius,
+    percent,
+    name,
+    isMobile,
+  } = props;
 
   // 値がない場合は何も表示しない
   if (
