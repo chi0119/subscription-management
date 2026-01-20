@@ -183,7 +183,7 @@ const ComparisonPieChart: React.FC<ComparisonPieChartProps> = ({
               outerRadius={isXlLayout ? "70%" : "60%"}
               startAngle={90}
               endAngle={-270}
-              label={RenderCustomizedLabel as any}
+              label={RenderCustomizedLabel}
               labelLine={false}
             >
               {sortedData.map((entry, index) => (
