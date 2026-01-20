@@ -23,6 +23,39 @@
 
 ---
 
+## アプリ仕様設計
+
+### 簡易アプリ企画
+https://docs.google.com/spreadsheets/d/1TyjVNvbB-PfmoR7mdDFU4A7NAsSBCazVpDECH_X58LM/edit?gid=1446009625#gid=1446009625
+
+### 簡易アプリ仕様設計
+https://docs.google.com/spreadsheets/d/1TyjVNvbB-PfmoR7mdDFU4A7NAsSBCazVpDECH_X58LM/edit?gid=577430712#gid=577430712
+
+
+
+### デザイン
+https://www.figma.com/design/y5oQntYWsn3e0Z3IbQB9CA/%E7%84%A1%E9%A1%8C?node-id=0-1&t=eARddOConz19GrSn-1
+
+
+### ER図
+![ER図](./public/images/er-diagram.png)
+
+---
+
+## デモURL
+
+[subscription-management-ashy.vercel.app](https://subscription-management-ashy.vercel.app/)
+
+### デモアカウント
+
+デモ用アカウントを使用して、アプリの全機能を確認できます。  
+（登録・編集・削除も可能です）
+
+- **メールアドレス：** demo@example.com  
+- **パスワード：** password1234  
+
+---
+
 ## 使用技術
 
 | 分類 | 技術 |
@@ -133,10 +166,4 @@ npm run dev
 
 ---
 
-## デモアカウント
 
-デモ用アカウントを使用して、アプリの全機能を確認できます。  
-（登録・編集・削除も可能です）
-
-- **メールアドレス：** demo@example.com  
-- **パスワード：** password1234  
