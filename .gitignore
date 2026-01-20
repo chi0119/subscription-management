@@ -33,6 +33,9 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# .env.exampleのみ対象外
+!.env.example
+
 # vercel
 .vercel
 
