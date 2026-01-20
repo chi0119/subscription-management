@@ -1,18 +1,7 @@
 // 円グラフ ラベルの条件分岐
 
 import React, { useState, useEffect, useRef } from "react";
-
-interface LabelRenderProps {
-  cx: number;
-  cy: number;
-  midAngle: number;
-  innerRadius: number;
-  outerRadius: number;
-  percent: number;
-  name: string;
-  value: number;
-  fill: string;
-}
+import { PieLabelRenderProps } from "recharts";
 
 const RADIAN = Math.PI / 180;
 
@@ -22,7 +11,7 @@ const MIN_PERCENT_FOR_INSIDE = 0.1;
 // ラベル最大文字数
 const MAX_NAME_LENGTH = 7;
 
-const RenderCustomizedLabel = (props: LabelRenderProps) => {
+export const RenderCustomizedLabel = (props: PieLabelRenderProps) => {
   const { cx, cy, midAngle, innerRadius, outerRadius, percent, name } = props;
 
   const [isMobile, setIsMobile] = useState(false);
@@ -34,6 +23,19 @@ const RenderCustomizedLabel = (props: LabelRenderProps) => {
     window.addEventListener("resize", checkScreen);
     return () => window.removeEventListener("resize", checkScreen);
   }, []);
+
+  // 値がない場合は何も表示しない
+  if (
+    cx === undefined ||
+    cy === undefined ||
+    midAngle === undefined ||
+    innerRadius === undefined ||
+    outerRadius === undefined ||
+    percent === undefined ||
+    name === undefined
+  ) {
+    return null;
+  }
 
   // 10%未満はラベル非表示
   if (isMobile || percent < MIN_PERCENT_FOR_INSIDE) return null;
