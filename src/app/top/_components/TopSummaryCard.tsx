@@ -5,7 +5,10 @@ interface TopSummaryCardProps {
   average: number;
   isLoading: boolean;
 }
-
+/**
+ * TOPページ：
+ * 今月合計金額、月の平均金額を表示するコンポーネント
+ */
 export const TopSummaryCard = ({
   total,
   average,

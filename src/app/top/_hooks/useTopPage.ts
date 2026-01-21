@@ -1,5 +1,10 @@
 import { useSubscription } from "@/contexts/SubscriptionContext";
 
+/**
+ * TOPページ用
+ * コンテキストからサブスク情報を取得
+ * 日付順（昇順）にソート
+ */
 export const useTopPage = () => {
   const {
     averageMonthlyAmount,
