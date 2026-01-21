@@ -149,19 +149,19 @@ cd subscription-management
 ```bash
 npm install
 ```
-1. Prisma Clientの生成
+3. Prisma Clientの生成
 ```bash
 npx prisma generate
 ```
-1. データベースの同期
+4. データベースの同期
 ```bash
 npx prisma db push
 ```
-1. 開発サーバーを起動
+5. 開発サーバーを起動
 ```bash
 npm run dev
 ```
-1. ブラウザで開く
+6. ブラウザで開く
 
 
 ---
