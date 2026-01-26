@@ -7,32 +7,58 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 
-// テキストが省略（ellipsis）されているときだけ Tooltip を表示するコンポーネント
-//  @param text - 表示したいテキスト
-//  @param maxWidth - 省略される最大幅（デフォルト: 150px）
-
 export const EllipsisTooltip: React.FC<{
   text?: string | null | undefined;
   maxWidth?: string;
 }> = ({ text = "", maxWidth = "150px" }) => {
-  const textRef = useRef<HTMLSpanElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
   const [showTooltip, setShowTooltip] = useState(false);
 
-  // 要素が省略されているかどうかを判定
   useEffect(() => {
     const el = textRef.current;
-    if (el) {
-      const isEllipsisActive = el.scrollWidth > el.clientWidth;
-      setShowTooltip(isEllipsisActive);
-    }
+    if (!el) return;
+
+    const checkEllipsis = () => {
+      // 誤差吸収のため +1px
+      setShowTooltip(el.scrollWidth > el.clientWidth + 1);
+    };
+
+    // ✅ 初回実行（レイアウト確定を待つ）
+    const timer1 = requestAnimationFrame(() => checkEllipsis());
+    const timer2 = setTimeout(checkEllipsis, 200); // 遅延描画に対応
+
+    // ✅ 幅やDOM変化の監視
+    const resizeObserver = new ResizeObserver(checkEllipsis);
+    resizeObserver.observe(el);
+
+    const mutationObserver = new MutationObserver(checkEllipsis);
+    mutationObserver.observe(el, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    });
+
+    window.addEventListener("resize", checkEllipsis);
+
+    return () => {
+      cancelAnimationFrame(timer1);
+      clearTimeout(timer2);
+      resizeObserver.disconnect();
+      mutationObserver.disconnect();
+      window.removeEventListener("resize", checkEllipsis);
+    };
   }, [text]);
 
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <span ref={textRef} className="truncate block" style={{ maxWidth }}>
+        <div
+          ref={textRef}
+          className="truncate block"
+          style={{ maxWidth, minWidth: 0 }}
+        >
           {text || "-"}
-        </span>
+        </div>
       </TooltipTrigger>
 
       {showTooltip && text && (
