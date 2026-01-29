@@ -3,20 +3,19 @@
 import { useTopPage } from "./_hooks/useTopPage";
 import { TopSummaryCard } from "./_components/TopSummaryCard";
 import { TopSubscriptionList } from "./_components/TopSubscriptionList";
-import { useSubscription } from "@/contexts/SubscriptionContext";
+
 
 /**
  * TOPページ：
  * 今月の合計金額・月の平均金額・今月支払いのサブスク一覧
  */
 export default function TopPage() {
-  const subscriptionData = useSubscription();
   const {
     averageMonthlyAmount,
     currentMonthTotal,
     sortedSubscriptions,
     isLoading,
-  } = useTopPage(subscriptionData);
+  } = useTopPage();
 
   return (
     <>

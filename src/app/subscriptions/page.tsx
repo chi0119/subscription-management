@@ -2,7 +2,6 @@
 
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { createClient } from "@supabase/supabase-js";
-import { useSubscription } from "@/contexts/SubscriptionContext";
 import { AverageAmountCard } from "./_components/AverageAmountCard";
 import { LoadingSpinner } from "./_components/LoadingSpinner";
 import { EmptyState } from "./_components/EmptyState";
@@ -17,9 +16,10 @@ import { EditSubscriptionModal } from "./_components/EditSubscriptionModal";
 import { useEffect } from "react";
 
 export default function SubscriptionsPage() {
-  const { averageMonthlyAmount, refreshAverage } = useSubscription();
-  const list = useSubscriptionList();
+  const list = useSubscriptionList();  
   const {
+    averageMonthlyAmount,
+    refreshAverage, // 追加
     subscriptions,
     sortedSubscriptions,
     isLoading,
