@@ -1,6 +1,6 @@
 // app/api/comparison/route.ts
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabaseServer";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
@@ -12,10 +12,7 @@ export async function GET(req: Request) {
       { status: 401 }
     );
 
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  const supabase = await createClient();
 
   // join なしで subscriptions を取得
   const { data, error } = await supabase
