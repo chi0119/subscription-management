@@ -4,15 +4,11 @@ import {
   PaymentMethod,
   Subscription,
 } from "@/types/subscription";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
 import { SubscriptionForm } from "@/components/subscription/SubscriptionForm";
 
-// Supabaseクライアントの初期化
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || "",
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
-);
+
 
 interface EditSubscriptionModalProps {
   isOpen: boolean;
