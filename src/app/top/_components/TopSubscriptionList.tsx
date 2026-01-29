@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { WalletCards } from "lucide-react";
-import { SubscriptionSummary } from "@/contexts/SubscriptionContext";
+import { SubscriptionSummary } from "@/hooks/useSubscriptionData";
 
 interface TopSubscriptionListProps {
   subscriptions: SubscriptionSummary[];

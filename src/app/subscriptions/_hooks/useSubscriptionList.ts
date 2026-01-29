@@ -7,7 +7,7 @@ import {
 } from "@/types/subscription";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { useSubscription } from "@/contexts/SubscriptionContext";
+import { useSubscriptionData } from "@/hooks/useSubscriptionData";
 import { supabase } from "@/lib/supabaseClient";
 
 
@@ -18,7 +18,9 @@ import { supabase } from "@/lib/supabaseClient";
 
 export const useSubscriptionList = () => {
   const { data: session } = useSession();
-  const { averageMonthlyAmount, refreshAverage } = useSubscription();
+  // Contextからではなく、カスタムフックから取得
+  const { averageMonthlyAmount, refresh } = useSubscriptionData();
+  const refreshAverage = refresh;
 
   // 一覧を取得
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
@@ -223,5 +225,7 @@ export const useSubscriptionList = () => {
     setPaymentMethods,
     setIsLoading,
     formatDate,
+    averageMonthlyAmount,
+    refreshAverage,
   };
 };
