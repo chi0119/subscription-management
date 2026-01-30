@@ -19,11 +19,27 @@ function TooltipProvider({
 }
 
 function Tooltip({
+  title,
+  children,
   ...props
-}: React.ComponentProps<typeof TooltipPrimitive.Root>) {
+}: React.ComponentProps<typeof TooltipPrimitive.Root> & {
+  title?: React.ReactNode;
+}) {
+  if (title) {
+    return (
+      <TooltipProvider>
+        <TooltipPrimitive.Root data-slot="tooltip" {...props}>
+          <TooltipTrigger asChild>{children}</TooltipTrigger>
+          <TooltipContent>{title}</TooltipContent>
+        </TooltipPrimitive.Root>
+      </TooltipProvider>
+    );
+  }
   return (
     <TooltipProvider>
-      <TooltipPrimitive.Root data-slot="tooltip" {...props} />
+      <TooltipPrimitive.Root data-slot="tooltip" {...props}>
+        {children}
+      </TooltipPrimitive.Root>
     </TooltipProvider>
   );
 }
