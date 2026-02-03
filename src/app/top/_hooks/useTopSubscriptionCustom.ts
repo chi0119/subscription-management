@@ -108,7 +108,9 @@ export const useTopSubscriptionCustom = (subscriptions: Subscription[]) => {
 
       // 今月支払うサブスク一覧（日付順にソート）
       const filteredSubs = subscriptions
-        .filter((sub) => !!(sub._thisMonthDays && sub._thisMonthDays.length > 0))
+        .filter(
+          (sub) => !!(sub._thisMonthDays && sub._thisMonthDays.length > 0)
+        )
         .sort((a, b) => {
           const dayA = a._thisMonthDays?.[0] || 0;
           const dayB = b._thisMonthDays?.[0] || 0;
