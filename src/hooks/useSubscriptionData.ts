@@ -44,10 +44,12 @@ export const useSubscriptionData = () => {
       // Supabaseからサブスクデータ取得
       const { data, error } = await supabase
         .from("subscriptions")
-        .select(`
+        .select(
+          `
           *,
           payment_cycles(payment_cycle_name)
-        `)
+        `
+        )
         .eq("user_id", session.user.id);
 
       if (error) throw error;
@@ -58,7 +60,6 @@ export const useSubscriptionData = () => {
         setAllSubscriptions(typedData);
 
         const today = new Date();
-
         // ---------------------------------------------------------
         // 今月支払日計算ロジック
         // ---------------------------------------------------------
@@ -76,10 +77,10 @@ export const useSubscriptionData = () => {
           contractDate.setUTCHours(0, 0, 0, 0);
 
           const firstDayOfMonth = new Date(
-            Date.UTC(today.getFullYear(), today.getMonth(), 1),
+            Date.UTC(today.getFullYear(), today.getMonth(), 1)
           );
           const lastDayOfMonth = new Date(
-            Date.UTC(today.getFullYear(), today.getMonth() + 1, 0),
+            Date.UTC(today.getFullYear(), today.getMonth() + 1, 0)
           );
 
           const paymentDays: number[] = [];
@@ -121,7 +122,7 @@ export const useSubscriptionData = () => {
         // ---------------------------------------------------------
         // 計算実行
         // ---------------------------------------------------------
-        
+
         // 今月の合計金額
         const currentTotal = typedData.reduce((sum, sub) => {
           const pDays = isDueThisMonth(sub);
@@ -131,13 +132,13 @@ export const useSubscriptionData = () => {
 
         // 月の平均金額
         const totalMonthlyAvg = typedData.reduce((sum, sub) => {
-           const cycleData = sub.payment_cycles as any;
-           const cycleText =
+          const cycleData = sub.payment_cycles as any;
+          const cycleText =
             (Array.isArray(cycleData)
               ? cycleData[0]?.payment_cycle_name
               : cycleData?.payment_cycle_name
             )?.toString() || "";
-            
+
           const cycleMatch = cycleText.match(/\d+/);
           let interval = cycleMatch ? parseInt(cycleMatch[0], 10) : 1;
           if (cycleText.includes("年")) interval = 12;
@@ -149,7 +150,7 @@ export const useSubscriptionData = () => {
         // 今月支払うサブスク一覧
         const filteredSubs = typedData
           .filter(
-            (sub) => !!(sub._thisMonthDays && sub._thisMonthDays.length > 0),
+            (sub) => !!(sub._thisMonthDays && sub._thisMonthDays.length > 0)
           )
           .sort((a, b) => {
             const dayA = a._thisMonthDays?.[0] || 0;
@@ -160,7 +161,6 @@ export const useSubscriptionData = () => {
         setCurrentSubscriptions(filteredSubs);
         setCurrentMonthTotal(currentTotal);
         setAverageMonthlyAmount(Math.round(totalMonthlyAvg));
-
       } else {
         // データなし
         setCurrentMonthTotal(0);
@@ -174,7 +174,6 @@ export const useSubscriptionData = () => {
       setIsLoading(false);
     }
   }, [session?.user?.id]);
-
 
   // リアルタイム更新
   useEffect(() => {
@@ -191,7 +190,7 @@ export const useSubscriptionData = () => {
             table: "subscriptions",
             filter: `user_id=eq.${session.user.id}`,
           },
-          () => fetchData(),
+          () => fetchData()
         )
         .subscribe();
 
@@ -200,7 +199,6 @@ export const useSubscriptionData = () => {
       };
     }
   }, [session?.user?.id, fetchData]);
-
 
   return {
     averageMonthlyAmount,
