@@ -15,7 +15,8 @@ import { supabase } from "@/lib/supabaseClient";
  */
 export const useSubscriptionCustom = (subscriptions: Subscription[]) => {
   const { data: session } = useSession();
-  const { averageMonthlyAmount } = useSubscriptionData();
+  const { averageMonthlyAmount, isLoading: isSummaryLoading } =
+    useSubscriptionData();
 
   // マスターデータ
   const [categories, setCategories] = useState<Category[]>([]);
@@ -102,7 +103,7 @@ export const useSubscriptionCustom = (subscriptions: Subscription[]) => {
     paymentCycles,
     paymentMethods,
     averageMonthlyAmount,
-    isMasterLoading,
+    isMasterLoading: isMasterLoading || isSummaryLoading,
     displayFilter,
     handleSelectChange,
     formatDate,
