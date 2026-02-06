@@ -1,7 +1,15 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabaseClient";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { createClient } from "@/lib/supabaseServer";
 
 export async function GET(request: Request) {
+  // 認証チェック
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { searchParams } = new URL(request.url);
   const name = searchParams.get("name");
 
@@ -10,10 +18,14 @@ export async function GET(request: Request) {
   }
 
   try {
+    const supabase = await createClient();
+
+    // ユーザーIDでフィルタリング
     const { count, error } = await supabase
       .from("subscriptions")
       .select("id", { count: "exact", head: true })
-      .eq("subscription_name", name);
+      .eq("subscription_name", name)
+      .eq("user_id", session.user.id);
 
     if (error) throw error;
 

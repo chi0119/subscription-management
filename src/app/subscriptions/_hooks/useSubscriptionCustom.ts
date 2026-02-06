@@ -42,7 +42,8 @@ export const useSubscriptionCustom = (subscriptions: Subscription[]) => {
             .from("categories")
             .select("id, category_name, user_id")
             .eq("user_id", session.user.id)
-            .is("deleted_at", null),
+            .is("deleted_at", null)
+            .order("id", { ascending: false }),
           supabase
             .from("payment_cycles")
             .select("id, payment_cycle_name")
