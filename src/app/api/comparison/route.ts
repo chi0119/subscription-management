@@ -59,7 +59,10 @@ export async function GET(req: Request) {
   // カテゴリ一覧を取得
   const { data: categories, error: catError } = await supabase
     .from("categories")
-    .select("id, category_name");
+    .select("id, category_name")
+    .eq("user_id", session.user.id)
+    .is("deleted_at", null)
+    .order("id", { ascending: false });
 
   if (catError) throw catError;
 
