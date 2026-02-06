@@ -19,6 +19,9 @@ export async function GET() {
       user_id: userId,
       deleted_at: null,
     },
+    orderBy: {
+      id: 'desc',
+    },
   });
 
   // データが0件の場合、デフォルトの3つをDBに保存して再取得
@@ -37,6 +40,9 @@ export async function GET() {
       where: {
         user_id: userId,
         deleted_at: null,
+      },
+      orderBy: {
+        id: 'desc',
       },
     });
   }

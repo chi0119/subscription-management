@@ -18,7 +18,7 @@ export async function GET() {
     .select("id, category_name")
     .eq("user_id", userId)
     .is("deleted_at", null)
-    .order("id");
+    .order("id", { ascending: false });
 
   // データが0件の場合、デフォルトの3つをDBに保存して再取得
   if (!categories || categories.length === 0) {
@@ -37,7 +37,7 @@ export async function GET() {
       .select("id, category_name")
       .eq("user_id", userId)
       .is("deleted_at", null)
-      .order("id");
+      .order("id", { ascending: false });
 
     categories = refreshedCategories;
   }
