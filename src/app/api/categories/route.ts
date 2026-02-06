@@ -76,8 +76,11 @@ export async function POST(req: Request) {
 
       // 削除
       if (cat.id && cat.deleted) {
-        await prisma.categories.update({
-          where: { id: BigInt(cat.id) },
+        await prisma.categories.updateMany({
+          where: {
+            id: BigInt(cat.id),
+            user_id: userId,
+          },
           data: { deleted_at: new Date() },
         });
         continue;
@@ -96,8 +99,11 @@ export async function POST(req: Request) {
       }
 
       // 通常更新
-      await prisma.categories.update({
-        where: { id: BigInt(cat.id) },
+      await prisma.categories.updateMany({
+        where: {
+          id: BigInt(cat.id),
+          user_id: userId,
+        },
         data: {
           category_name: cat.category_name,
           deleted_at: null,
