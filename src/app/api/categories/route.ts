@@ -72,7 +72,6 @@ export async function POST(req: Request) {
 
     // カテゴリー 登録・更新・削除処理
     for (const cat of categories) {
-      const userId = BigInt(session.user.id);
 
       // 削除
       if (cat.id && cat.deleted) {
