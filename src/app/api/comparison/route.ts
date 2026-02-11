@@ -12,7 +12,9 @@ export async function GET(req: Request) {
       { status: 401 }
     );
 
-  const supabase = await createClient();
+  try {
+    const supabase = await createClient();
+
 
   // join なしで subscriptions を取得
   const { data, error } = await supabase
@@ -85,4 +87,11 @@ export async function GET(req: Request) {
   }));
 
   return NextResponse.json({ amountData, categoryData });
+  } catch (error) {
+    console.error("Comparison API Error:", error);
+    return NextResponse.json(
+      { error: "データの取得に失敗しました" },
+      { status: 500 }
+    );
+  }
 }
