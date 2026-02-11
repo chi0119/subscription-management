@@ -55,7 +55,7 @@ export async function GET() {
 
   return NextResponse.json(safeCategories);
 
-  return NextResponse.json(safeCategories);
+
 }
 
 // カテゴリー 更新
