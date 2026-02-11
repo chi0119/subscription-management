@@ -37,7 +37,7 @@ export async function POST(req: Request) {
     return new Response("Invalid input", { status: 400 });
   }
 
-  const userId = session.user.id || session.user.email;
+  const userId = session.user.id;
 
   const { error } = await supabase.from("subscriptions").insert({
     subscription_name: subscription_name,
