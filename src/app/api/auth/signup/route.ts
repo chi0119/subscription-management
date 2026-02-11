@@ -4,9 +4,11 @@ import bcrypt from "bcryptjs";
 
 export async function POST(req: Request) {
   try {
-    const { userName, email, password } = await req.json();
+    // const { userName, email, password } = await req.json();
+    const { email, password } = await req.json();
 
-    if (!userName || !email || !password) {
+    // if (!userName || !email || !password) {
+    if (!email || !password) {
       return NextResponse.json(
         { error: "すべての項目を入力してください" },
         { status: 400 }
